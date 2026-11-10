@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && touch dist/.nojekyll && mkdir -p docs && cp -r dist/* docs/ && touch docs/.nojekyll",
+    "build": "vite build && mkdir -p docs && cp public/standalone.html docs/index.html && cp public/standalone.html docs/404.html",
     "start": "tsx server.ts",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",

@@ -25,14 +25,6 @@ const getGeminiClient = () => {
 const DATA_DIR = path.resolve(process.cwd(), '.data');
 const BACKUP_FILE = path.join(DATA_DIR, 'workspace_backup.json');
 
-if (!fs.existsSync(DATA_DIR)) {
-  try {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  } catch (e) {
-    console.warn('Could not create .data dir', e);
-  }
-}
-
 // 1. Centralized Sync Endpoints
 app.get('/api/sync/state', (req, res) => {
   try {
@@ -51,6 +43,9 @@ app.post('/api/sync/state', (req, res) => {
     const payload = req.body;
     if (!payload || typeof payload !== 'object') {
       return res.status(400).json({ error: 'Invalid payload' });
+    }
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
     }
     fs.writeFileSync(BACKUP_FILE, JSON.stringify(payload, null, 2), 'utf-8');
     return res.json({ success: true, savedAt: new Date().toISOString() });
