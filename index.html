@@ -16,6 +16,22 @@
   <body class="bg-[#090b10] text-[#f1f5f9] antialiased selection:bg-amber-500/20 selection:text-amber-200">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Automatic fallback for static GitHub Pages hosting
+      // If running on a static server/GitHub Pages and the root hasn't mounted in 600ms, route to built docs/
+      setTimeout(function() {
+        var root = document.getElementById('root');
+        if (root && root.children.length === 0) {
+          if (window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:') {
+            var currentPath = window.location.pathname;
+            if (!currentPath.includes('/docs/')) {
+              var target = currentPath.endsWith('/') ? currentPath + 'docs/' : currentPath + '/docs/';
+              window.location.replace(target);
+            }
+          }
+        }
+      }, 600);
+    </script>
   </body>
 </html>
 
