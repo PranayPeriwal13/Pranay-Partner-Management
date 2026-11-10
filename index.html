@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,26 +12,2019 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+    body {
+      background-color: #090A0F;
+      color: #F8FAFC;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    .glass-card-hover {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(100, 116, 139, 0.6);
+      transform: translateY(-1px);
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
   </head>
-  <body class="bg-[#090b10] text-[#f1f5f9] antialiased selection:bg-amber-500/20 selection:text-amber-200">
+  <body class="min-h-screen bg-[#090b10] text-[#f1f5f9] antialiased selection:bg-amber-500/20 selection:text-amber-200">
     <div id="root"></div>
+    <div id="standalone-fallback-app" style="display: none;">
+<!-- Header -->
+  <header class="sticky top-0 z-40 bg-[#090A0F]/85 backdrop-blur-md border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo & Brand -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('command')">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 font-extrabold text-slate-950 text-base tracking-wider">
+            CP
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-bold text-slate-100 text-sm tracking-tight">Pranay CP Intelligence</span>
+              <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">Standalone</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium">Luxury Real Estate Sales Workspace</p>
+          </div>
+        </div>
+
+        <!-- Quick Actions & User -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <button onclick="downloadThisHTML()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition-all">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span class="hidden sm:inline">Save index.html</span>
+          </button>
+
+          <button onclick="openModal('addCPModal')" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/10 transition-all">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Add CP</span>
+          </button>
+
+          <button onclick="openModal('logActivityModal')" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-all">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <span class="hidden sm:inline">Log Action</span>
+          </button>
+
+          <div class="h-4 w-px bg-slate-800 mx-1"></div>
+
+          <!-- Current User Switcher -->
+          <div class="flex items-center space-x-2">
+            <div id="userBadge" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">
+              <span id="userAvatar" class="w-4 h-4 rounded-full bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-[10px]">P</span>
+              <span id="userName" class="font-medium text-slate-300">Pranay</span>
+            </div>
+            <button onclick="openModal('userModal')" class="text-xs text-slate-400 hover:text-slate-200 p-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="flex space-x-1 overflow-x-auto hide-scrollbar py-2 border-t border-slate-800/40 text-xs font-medium">
+        <button onclick="switchTab('command')" id="tab-command" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-800 text-amber-300 border border-slate-700">Command Centre</button>
+        <button onclick="switchTab('directory')" id="tab-directory" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 transition-colors">CP Directory</button>
+        <button onclick="switchTab('pipeline')" id="tab-pipeline" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 transition-colors">Deal Pipeline</button>
+        <button onclick="switchTab('actions')" id="tab-actions" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 transition-colors">Action Queue</button>
+        <button onclick="switchTab('team')" id="tab-team" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 transition-colors">Team & Targets</button>
+        <button onclick="switchTab('meetings')" id="tab-meetings" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 transition-colors">Meetings Register</button>
+        <button onclick="switchTab('excel')" id="tab-excel" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 transition-colors">Excel Studio</button>
+        <button onclick="switchTab('aicoach')" id="tab-aicoach" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 transition-colors">AI Sales Coach</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20">
+    
+    <!-- VIEW 1: Command Centre -->
+    <div id="view-command" class="view-panel space-y-6">
+      <!-- Hero Greeting -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 relative overflow-hidden">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center space-x-2 text-xs font-mono uppercase text-amber-400 tracking-wider mb-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Commercial Command Centre</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
+              Where will luxury revenue close in the next 7 to 30 days?
+            </h1>
+            <p id="heroSummary" class="text-sm text-slate-400 mt-2 max-w-2xl">
+              Focus today on confirming high-net-worth client walkthroughs and clearing overdue broker commitments.
+            </p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <button onclick="switchTab('actions')" class="px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 shadow-lg shadow-amber-500/20 transition-all">
+              Work Action Queue
+            </button>
+            <button onclick="switchTab('aicoach')" class="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-200 font-semibold text-xs border border-slate-700 hover:bg-slate-700 transition-all">
+              Ask AI Coach
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4" id="kpiGrid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Dual Column: Commitments vs Closure Pipeline -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left Column: Commitments & Interventions (7 cols) -->
+        <div class="lg:col-span-7 space-y-6">
+          <!-- Today's Commitments -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center space-x-2">
+                <h2 class="text-sm font-bold text-slate-200">Today's Meeting & Follow-up Commitments</h2>
+                <span id="todayCountBadge" class="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 font-mono">0</span>
+              </div>
+              <button onclick="switchTab('actions')" class="text-xs text-amber-400 hover:text-amber-300">View All →</button>
+            </div>
+            <div id="todayCommitmentsList" class="space-y-3">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Overdue Interventions -->
+          <div class="glass-card rounded-2xl p-5 border-rose-900/30">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                <h2 class="text-sm font-bold text-slate-200">Overdue Broker Commitments (Requires Intervention)</h2>
+              </div>
+              <span id="overdueCountBadge" class="text-xs px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 font-mono">0</span>
+            </div>
+            <div id="overdueInterventionsList" class="space-y-2.5">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- High-Potential CPs with no touch > 10 days -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="text-sm font-bold text-slate-200">High-Potential Partners Untouched &gt; 10 Days</h2>
+              <span id="untouchedBadge" class="text-xs text-slate-400 font-mono">0 partners</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">Re-engage these brokers before competitor developers capture their high-net-worth client mandates.</p>
+            <div id="untouchedPartnersList" class="space-y-2">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: 7-30 Day Pipeline & Team Output (5 cols) -->
+        <div class="lg:col-span-5 space-y-6">
+          <!-- 7-30 Day Pipeline -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-sm font-bold text-slate-200">7–30 Day Luxury Closure Pipeline</h2>
+              <button onclick="switchTab('pipeline')" class="text-xs text-amber-400 hover:text-amber-300">View Board →</button>
+            </div>
+            <div id="closurePipelineList" class="space-y-3">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Team Output Pulse -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-sm font-bold text-slate-200">Team Output Pulse (7 Days)</h2>
+              <button onclick="switchTab('team')" class="text-xs text-amber-400 hover:text-amber-300">Targets →</button>
+            </div>
+            <div id="teamPulseList" class="space-y-3">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: CP Directory -->
+    <div id="view-directory" class="view-panel hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Channel Partner Directory</h2>
+          <p class="text-xs text-slate-400">Roster of accredited luxury brokers with real-time health score and active buyer mandates</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="exportCPsCSV()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">Export CSV</button>
+          <button onclick="openModal('addCPModal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400">+ Add Partner</button>
+        </div>
+      </div>
+
+      <!-- Filters & Search Toolbar -->
+      <div class="glass-card rounded-xl p-3 flex flex-wrap items-center gap-3 text-xs">
+        <input type="text" id="dirSearch" placeholder="Search partner, RERA name, phone..." oninput="renderDirectory()" class="flex-1 min-w-[200px] bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500">
+        <select id="dirFilterOwner" onchange="renderDirectory()" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-300 focus:outline-none">
+          <option value="">All Owners</option>
+          <option value="Jasjeet">Jasjeet</option>
+          <option value="Prateek">Prateek</option>
+          <option value="Naman">Naman</option>
+          <option value="Pranay">Pranay</option>
+          <option value="Unassigned">Unassigned</option>
+        </select>
+        <select id="dirFilterStatus" onchange="renderDirectory()" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-300 focus:outline-none">
+          <option value="">All Statuses</option>
+          <option value="New">New</option>
+          <option value="Contacted">Contacted</option>
+          <option value="Meeting Scheduled">Meeting Scheduled</option>
+          <option value="Meeting Done">Meeting Done</option>
+          <option value="Active">Active</option>
+          <option value="Dormant">Dormant</option>
+          <option value="Converted">Converted</option>
+        </select>
+        <select id="dirFilterPriority" onchange="renderDirectory()" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-300 focus:outline-none">
+          <option value="">All Priorities</option>
+          <option value="A - High Potential">Tier A - High Potential</option>
+          <option value="B - Develop">Tier B - Develop</option>
+          <option value="C - Nurture">Tier C - Nurture</option>
+        </select>
+      </div>
+
+      <!-- Directory Table -->
+      <div class="glass-card rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-900/80 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-mono text-[11px]">
+                <th class="py-3 px-4">Partner / RERA Name</th>
+                <th class="py-3 px-4">Owner</th>
+                <th class="py-3 px-4">Health</th>
+                <th class="py-3 px-4">Client Budget</th>
+                <th class="py-3 px-4">Next Action</th>
+                <th class="py-3 px-4">Follow-Up</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="directoryTableBody" class="divide-y divide-slate-800/60">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 3: Deal Pipeline Kanban -->
+    <div id="view-pipeline" class="view-panel hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Deal Pipeline (₹ Crores)</h2>
+          <p class="text-xs text-slate-400">Track luxury buyers introduced by channel partners across conversion stages</p>
+        </div>
+        <button onclick="openModal('addOppModal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400">+ Add Opportunity</button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4" id="kanbanBoard">
+        <!-- 5 Kanban Columns rendered by JS -->
+      </div>
+    </div>
+
+    <!-- VIEW 4: Action Queue -->
+    <div id="view-actions" class="view-panel hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Consolidated Action Queue</h2>
+          <p class="text-xs text-slate-400">Every open CP must have a committed next action and follow-up date</p>
+        </div>
+        <button onclick="openModal('addCPModal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400">+ Add Partner</button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Overdue (Red) -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-rose-500/30">
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center space-x-1.5">
+              <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+              <span>Overdue Follow-ups</span>
+            </span>
+            <span id="queueOverdueCount" class="text-xs font-mono px-2 py-0.5 rounded bg-rose-500/10 text-rose-400">0</span>
+          </div>
+          <div id="queueOverdueList" class="space-y-3"></div>
+        </div>
+
+        <!-- Today (Amber) -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-amber-500/30">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center space-x-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>Due Today</span>
+            </span>
+            <span id="queueTodayCount" class="text-xs font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400">0</span>
+          </div>
+          <div id="queueTodayList" class="space-y-3"></div>
+        </div>
+
+        <!-- Upcoming (Slate) -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-700">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+              <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+              <span>Upcoming Commitments</span>
+            </span>
+            <span id="queueUpcomingCount" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">0</span>
+          </div>
+          <div id="queueUpcomingList" class="space-y-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 5: Team & Targets -->
+    <div id="view-team" class="view-panel hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Team Performance & Outcome Matrix</h2>
+          <p class="text-xs text-slate-400">Outcome-based accountability: measuring verified conversations, meetings, leads, visits, and bookings</p>
+        </div>
+      </div>
+
+      <!-- Targets vs Actuals Table -->
+      <div class="glass-card rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-900/80 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-mono text-[11px]">
+                <th class="py-3 px-4">Team Member</th>
+                <th class="py-3 px-4">CP Meetings</th>
+                <th class="py-3 px-4">Client Leads</th>
+                <th class="py-3 px-4">Site Visits</th>
+                <th class="py-3 px-4">Bookings</th>
+                <th class="py-3 px-4">Active CPs</th>
+                <th class="py-3 px-4">Overdue</th>
+              </tr>
+            </thead>
+            <tbody id="teamTargetsTableBody" class="divide-y divide-slate-800/60">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Workload Balancing Grid -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold text-slate-200">Portfolio Workload Distribution</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="workloadCards">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 6: Meetings Register -->
+    <div id="view-meetings" class="view-panel hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Meetings Register & Audit Trail</h2>
+          <p class="text-xs text-slate-400">Verifiable historical log of all meetings, site visits, and agreed next steps</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="exportMeetingsCSV()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">Export CSV</button>
+          <button onclick="openModal('logActivityModal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400">+ Log Meeting</button>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-900/80 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-mono text-[11px]">
+                <th class="py-3 px-4">Date</th>
+                <th class="py-3 px-4">Partner</th>
+                <th class="py-3 px-4">Owner</th>
+                <th class="py-3 px-4">Activity</th>
+                <th class="py-3 px-4">Outcome</th>
+                <th class="py-3 px-4">Client Detail</th>
+                <th class="py-3 px-4">Notes</th>
+              </tr>
+            </thead>
+            <tbody id="meetingsRegisterTableBody" class="divide-y divide-slate-800/60">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 7: Excel Studio -->
+    <div id="view-excel" class="view-panel hidden space-y-6">
+      <div>
+        <h2 class="text-xl font-bold text-slate-100">Excel Studio & Bulk Operations</h2>
+        <p class="text-xs text-slate-400">Download formatted templates, validate new rows before importing, and restore past snapshots</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Download CP Status Template -->
+        <div class="glass-card rounded-2xl p-5 space-y-3">
+          <h3 class="text-sm font-bold text-slate-200">1. CP Status Template</h3>
+          <p class="text-xs text-slate-400">Full roster format with RERA name, contact details, status, priority, and next actions.</p>
+          <button onclick="downloadExcelTemplate('cp_status')" class="w-full py-2 rounded-xl bg-slate-800 text-amber-300 border border-slate-700 hover:bg-slate-700 font-semibold text-xs">
+            Download .xlsx Template
+          </button>
+        </div>
+
+        <!-- Download Activity Template -->
+        <div class="glass-card rounded-2xl p-5 space-y-3">
+          <h3 class="text-sm font-bold text-slate-200">2. Activity Log Template</h3>
+          <p class="text-xs text-slate-400">Weekly meeting records, client leads, and site walkthrough logs.</p>
+          <button onclick="downloadExcelTemplate('activity_log')" class="w-full py-2 rounded-xl bg-slate-800 text-amber-300 border border-slate-700 hover:bg-slate-700 font-semibold text-xs">
+            Download .xlsx Template
+          </button>
+        </div>
+
+        <!-- Download Workload Reallocation -->
+        <div class="glass-card rounded-2xl p-5 space-y-3">
+          <h3 class="text-sm font-bold text-slate-200">3. Ownership Reallocation</h3>
+          <p class="text-xs text-slate-400">Rebalance broker assignments across Jasjeet, Prateek, Naman, and Pranay.</p>
+          <button onclick="downloadExcelTemplate('ownership')" class="w-full py-2 rounded-xl bg-slate-800 text-amber-300 border border-slate-700 hover:bg-slate-700 font-semibold text-xs">
+            Download .xlsx Template
+          </button>
+        </div>
+      </div>
+
+      <!-- File Upload & Preview Zone -->
+      <div class="glass-card rounded-2xl p-6 border-dashed border-2 border-slate-700 space-y-4 text-center">
+        <div class="w-12 h-12 mx-auto rounded-full bg-slate-800 flex items-center justify-center text-amber-400">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-slate-200">Drop your updated Excel or CSV file here</h4>
+          <p class="text-xs text-slate-400 mt-1">Supports .xlsx, .xls, and .csv with automatic duplicate detection & rollback protection</p>
+        </div>
+        <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" onchange="handleExcelFileUpload(event)" class="hidden">
+        <button onclick="document.getElementById('excelFileInput').click()" class="px-5 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-all">
+          Select Excel File
+        </button>
+        <p id="excelStatusMessage" class="text-xs text-slate-400 font-mono"></p>
+      </div>
+
+      <!-- Preview Table -->
+      <div id="excelPreviewContainer" class="hidden glass-card rounded-2xl p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-slate-200">Import Preview & Validation Report</h3>
+          <div class="flex items-center space-x-2">
+            <button onclick="cancelExcelImport()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300">Cancel</button>
+            <button onclick="commitExcelImport()" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-slate-950 hover:bg-emerald-400">Commit Import</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto max-h-72">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-900 border-b border-slate-800 text-slate-400 font-mono">
+                <th class="p-2">Row</th>
+                <th class="p-2">Partner Name</th>
+                <th class="p-2">RERA Name</th>
+                <th class="p-2">Phone</th>
+                <th class="p-2">Owner</th>
+                <th class="p-2">Status</th>
+                <th class="p-2">Validation</th>
+              </tr>
+            </thead>
+            <tbody id="excelPreviewTableBody" class="divide-y divide-slate-800/60 font-mono text-[11px]"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 8: AI Sales Coach -->
+    <div id="view-aicoach" class="view-panel hidden space-y-6">
+      <div class="glass-card rounded-2xl p-6 sm:p-8 relative overflow-hidden">
+        <div class="flex items-center space-x-3 mb-2">
+          <span class="w-3 h-3 rounded-full bg-amber-400 animate-pulse"></span>
+          <h2 class="text-lg font-bold text-slate-100">AI Sales Intelligence Director</h2>
+          <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">Executive Strategy</span>
+        </div>
+        <p class="text-xs text-slate-400 max-w-2xl">
+          Generates high-leverage luxury real estate broker engagement tactics, pipeline diagnostics, and pre-meeting briefing dossiers.
+        </p>
+      </div>
+
+      <!-- Quick Strategy Prompts -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button onclick="runAIPreset('pipeline')" class="glass-card glass-card-hover rounded-xl p-4 text-left space-y-1">
+          <span class="text-xs font-bold text-amber-400">1. Pipeline Risk Analysis</span>
+          <p class="text-[11px] text-slate-400">Audit all ₹ Cr opportunities at risk of stalling beyond 30 days.</p>
+        </button>
+        <button onclick="runAIPreset('dormant')" class="glass-card glass-card-hover rounded-xl p-4 text-left space-y-1">
+          <span class="text-xs font-bold text-amber-400">2. High-Net-Worth Re-engagement</span>
+          <p class="text-[11px] text-slate-400">Draft high-conversion reconnect hooks for Tier-A brokers.</p>
+        </button>
+        <button onclick="runAIPreset('negotiation')" class="glass-card glass-card-hover rounded-xl p-4 text-left space-y-1">
+          <span class="text-xs font-bold text-amber-400">3. Negotiation Closing Levers</span>
+          <p class="text-[11px] text-slate-400">Actionable closing structures for Golf Course Rd penthouses.</p>
+        </button>
+      </div>
+
+      <!-- Coach Response Box -->
+      <div class="glass-card rounded-2xl p-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <span class="text-xs font-mono text-slate-400 uppercase">Strategic Briefing Output</span>
+          <span id="aiStatusPill" class="text-[11px] font-mono text-emerald-400">Ready</span>
+        </div>
+        <div id="aiOutputContent" class="text-xs text-slate-300 leading-relaxed space-y-3 font-sans">
+          <p class="text-slate-400 italic">Select one of the strategic questions above or ask a customized commercial question below.</p>
+        </div>
+        <div class="pt-4 border-t border-slate-800/80 flex items-center space-x-2">
+          <input type="text" id="aiCustomPrompt" placeholder="Ask specific questions about CPs, inventory, or broker psychology..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+          <button onclick="submitAICustomPrompt()" class="px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-all">
+            Consult Coach
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODALS -->
+
+  <!-- Add CP Modal -->
+  <div id="addCPModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-card rounded-2xl w-full max-w-xl p-6 space-y-5 border border-slate-800 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-bold text-slate-100">Register New Channel Partner</h3>
+        <button onclick="closeModal('addCPModal')" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
+      </div>
+      <form onsubmit="handleSaveCP(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Contact Person Name *</label>
+            <input type="text" id="modalCpName" required placeholder="e.g. Vikram Sethi" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Company / Brokerage</label>
+            <input type="text" id="modalCpCompany" placeholder="e.g. Apex Luxury Estates" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-amber-500">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">RERA Registered Name</label>
+            <input type="text" id="modalCpRera" placeholder="RERA registered firm" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Phone / WhatsApp *</label>
+            <input type="text" id="modalCpPhone" required placeholder="+91 98111..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-amber-500">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Assigned Owner *</label>
+            <select id="modalCpOwner" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+              <option value="Jasjeet">Jasjeet</option>
+              <option value="Prateek">Prateek</option>
+              <option value="Naman">Naman</option>
+              <option value="Pranay">Pranay</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Priority Tier</label>
+            <select id="modalCpPriority" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+              <option value="A - High Potential">Tier A - High Potential</option>
+              <option value="B - Develop" selected>Tier B - Develop</option>
+              <option value="C - Nurture">Tier C - Nurture</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Client Budget</label>
+            <input type="text" id="modalCpBudget" placeholder="e.g. ₹8–12 Cr" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Next Follow-Up Date *</label>
+            <input type="date" id="modalCpNextDate" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Next Action *</label>
+            <input type="text" id="modalCpNextAction" required placeholder="e.g. Schedule project walkthrough" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Initial Notes / Profile Intel</label>
+          <textarea id="modalCpNotes" rows="2" placeholder="Key investor network, past transaction records, preferred corridors..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none"></textarea>
+        </div>
+        <div class="flex items-center justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeModal('addCPModal')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">Save Partner</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Log Activity Modal -->
+  <div id="logActivityModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-card rounded-2xl w-full max-w-lg p-6 space-y-4 border border-slate-800">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-bold text-slate-100">Log Broker Interaction</h3>
+        <button onclick="closeModal('logActivityModal')" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
+      </div>
+      <form onsubmit="handleSaveActivity(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">Select Channel Partner *</label>
+          <select id="logPartnerId" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+            <!-- Options populated dynamically -->
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Activity Type *</label>
+            <select id="logType" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+              <option value="Meeting">Meeting</option>
+              <option value="Site visit">Site visit</option>
+              <option value="Client lead">Client lead</option>
+              <option value="Client meeting">Client meeting</option>
+              <option value="Booking">Booking</option>
+              <option value="Call">Call</option>
+              <option value="WhatsApp">WhatsApp</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Outcome *</label>
+            <select id="logOutcome" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+              <option value="Meeting completed">Meeting completed</option>
+              <option value="Interested">Interested</option>
+              <option value="Client introduced">Client introduced</option>
+              <option value="Site visit completed">Site visit completed</option>
+              <option value="Negotiation in progress">Negotiation in progress</option>
+              <option value="Follow-up requested">Follow-up requested</option>
+              <option value="Booking confirmed">Booking confirmed</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Client Name / Mandate (if introduced)</label>
+          <input type="text" id="logClientName" placeholder="e.g. Dr. Malhotra (₹10 Cr 4BHK penthouse)" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Interaction Notes & Agreed Next Steps *</label>
+          <textarea id="logNotes" required rows="3" placeholder="What specific commercial outcome was agreed upon?" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Next Follow-Up Date *</label>
+            <input type="date" id="logNextDate" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Next Committed Action *</label>
+            <input type="text" id="logNextAction" required placeholder="e.g. Coordinate Saturday walkthrough" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+          </div>
+        </div>
+        <div class="flex items-center justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeModal('logActivityModal')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">Save Log</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Opportunity Modal -->
+  <div id="addOppModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-card rounded-2xl w-full max-w-lg p-6 space-y-4 border border-slate-800">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-bold text-slate-100">Add Pipeline Opportunity</h3>
+        <button onclick="closeModal('addOppModal')" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
+      </div>
+      <form onsubmit="handleSaveOpportunity(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">Client Name / Entity *</label>
+          <input type="text" id="oppClientName" required placeholder="e.g. Sanjay Chhabra (Industrialist)" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Associated Channel Partner *</label>
+            <select id="oppPartnerId" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+              <!-- Options populated dynamically -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Deal Value (₹ Crores) *</label>
+            <input type="number" step="0.1" id="oppAmountCr" required placeholder="12.5" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Current Stage *</label>
+            <select id="oppStage" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+              <option value="lead">Client Lead (20%)</option>
+              <option value="meeting">Client Meeting (40%)</option>
+              <option value="site_visit">Site Visit (60%)</option>
+              <option value="negotiation">Negotiation (80%)</option>
+              <option value="booking">Booking (100%)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Estimated Closure Timeline</label>
+            <select id="oppTimeline" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+              <option value="7 days">Within 7 Days</option>
+              <option value="15 days" selected>Within 15 Days</option>
+              <option value="30 days">Within 30 Days</option>
+              <option value="60 days">Within 60 Days</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Specific Unit / Buyer Requirement</label>
+          <input type="text" id="oppRequirement" placeholder="e.g. Tower B, High Floor Penthouse overlooking Golf Course" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+        </div>
+        <div class="flex items-center justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeModal('addOppModal')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">Save Opportunity</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CP Slide-over Detail Sheet -->
+  <div id="cpDetailModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-end">
+    <div class="bg-slate-900 border-l border-slate-800 w-full max-w-xl h-full p-6 space-y-6 overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div>
+          <h3 id="sheetCpName" class="text-lg font-bold text-slate-100">Partner Details</h3>
+          <p id="sheetCpCompany" class="text-xs text-slate-400">Agency Name</p>
+        </div>
+        <button onclick="closeModal('cpDetailModal')" class="text-slate-400 hover:text-slate-200 text-xl p-1">✕</button>
+      </div>
+
+      <!-- Health Score Card -->
+      <div class="glass-card rounded-2xl p-5 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs uppercase font-mono text-slate-400">Relationship Health Score</span>
+          <span id="sheetHealthScore" class="text-2xl font-black font-mono text-emerald-400">85/100</span>
+        </div>
+        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+          <div id="sheetHealthBar" class="bg-emerald-400 h-full rounded-full transition-all duration-500" style="width: 85%"></div>
+        </div>
+        <div id="sheetHealthBreakdown" class="grid grid-cols-4 gap-2 text-center text-[10px] font-mono pt-2">
+          <!-- Breakdown items -->
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="grid grid-cols-2 gap-3">
+        <button id="sheetWhatsAppBtn" class="py-2.5 rounded-xl bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/30 text-xs font-semibold flex items-center justify-center space-x-2">
+          <span>WhatsApp Broker</span>
+        </button>
+        <button id="sheetBriefBtn" class="py-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 text-xs font-semibold flex items-center justify-center space-x-2">
+          <span>Pre-Meeting Dossier</span>
+        </button>
+      </div>
+
+      <!-- Intel & Notes -->
+      <div class="space-y-3">
+        <h4 class="text-xs font-bold uppercase font-mono text-slate-400">Key Information</h4>
+        <div class="glass-card rounded-xl p-4 text-xs space-y-2">
+          <div class="flex justify-between"><span class="text-slate-400">RERA Name:</span><span id="sheetReraName" class="text-slate-200 font-medium"></span></div>
+          <div class="flex justify-between items-center"><span class="text-slate-400">Phone:</span><span id="sheetPhone" class="text-slate-200 font-mono"></span></div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Assigned Owner:</span>
+            <select id="sheetOwnerSelect" onchange="if(selectedCPForSheet){ updatePartnerOwner(selectedCPForSheet.id, this.value); }" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-slate-200 focus:outline-none focus:border-amber-400 text-xs">
+              <option value="Unassigned">Unassigned</option>
+              <option value="Jasjeet">Jasjeet</option>
+              <option value="Prateek">Prateek</option>
+              <option value="Naman">Naman</option>
+              <option value="Pranay">Pranay</option>
+            </select>
+          </div>
+          <div class="flex justify-between"><span class="text-slate-400">Client Budget:</span><span id="sheetBudget" class="text-slate-200"></span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Next Action:</span><span id="sheetNextAction" class="text-amber-300 font-medium text-right"></span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Next Date:</span><span id="sheetNextDate" class="text-slate-200 font-mono"></span></div>
+        </div>
+      </div>
+
+      <!-- Interaction History -->
+      <div class="space-y-3">
+        <h4 class="text-xs font-bold uppercase font-mono text-slate-400">Interaction History</h4>
+        <div id="sheetTimeline" class="space-y-3"></div>
+      </div>
+
+      <!-- Delete Danger Action -->
+      <div class="pt-4 border-t border-slate-800">
+        <button id="sheetDeleteBtn" onclick="if(selectedCPForSheet){ deletePartner(selectedCPForSheet.id); closeModal('cpDetailModal'); }" class="w-full py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-semibold flex items-center justify-center space-x-2 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          <span>Delete Channel Partner</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Switch / PIN Modal -->
+  <div id="userModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-card rounded-2xl w-full max-w-sm p-6 space-y-4 border border-slate-800">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-slate-100">Switch Sales Account</h3>
+        <button onclick="closeModal('userModal')" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">Select User</label>
+          <select id="userSelectDropdown" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+            <option value="Pranay">Pranay (Admin)</option>
+            <option value="Jasjeet">Jasjeet</option>
+            <option value="Prateek">Prateek</option>
+            <option value="Naman">Naman</option>
+          </select>
+        </div>
+        <div id="adminPinContainer">
+          <label class="block text-slate-400 mb-1">Admin Security PIN</label>
+          <input type="password" id="userPinInput" placeholder="••••" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 font-mono text-center tracking-widest focus:outline-none">
+        </div>
+        <p id="userModalStatus" class="text-rose-400 text-center font-mono text-[11px]"></p>
+        <button onclick="handleUserSwitch()" class="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">
+          Switch User
+        </button>
+      </div>
+    </div>
+  </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Automatic fallback for static GitHub Pages hosting
-      // If running on a static server/GitHub Pages and the root hasn't mounted in 600ms, route to built docs/
-      setTimeout(function() {
-        var root = document.getElementById('root');
-        if (root && root.children.length === 0) {
-          if (window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:') {
-            var currentPath = window.location.pathname;
-            if (!currentPath.includes('/docs/')) {
-              var target = currentPath.endsWith('/') ? currentPath + 'docs/' : currentPath + '/docs/';
-              window.location.replace(target);
-            }
+
+    // Initial Seed Data (Identical to Production React Suite)
+    const INITIAL_PARTNERS = [
+      {
+        id: "cp-1",
+        name: "Vikram Sethi",
+        company: "Apex Luxury Estates LLP",
+        reraName: "Apex Luxury Estates LLP",
+        phone: "+91 98111 22334",
+        market: "Golf Course Road",
+        owner: "Jasjeet",
+        status: "Active",
+        priority: "A - High Potential",
+        clientBudget: "₹8–12 Cr",
+        clientType: "Both",
+        activeRequirements: 2,
+        lastTouch: "2026-11-08",
+        nextDate: new Date().toISOString().split('T')[0], // Today
+        nextAction: "Confirm site visit for 4 BHK penthouse buyer",
+        notes: "Controls top C-suite network in DLF Phase 5. Demands swift coordination.",
+        createdAt: "2026-10-15"
+      },
+      {
+        id: "cp-2",
+        name: "Anil Singhania",
+        company: "Singhania Real Estate Pvt Ltd",
+        reraName: "Singhania Real Estate Pvt Ltd",
+        phone: "+91 98222 33445",
+        market: "Golf Course Extension",
+        owner: "Naman",
+        status: "Contacted",
+        priority: "A - High Potential",
+        clientBudget: "₹6–9 Cr",
+        clientType: "End user",
+        activeRequirements: 1,
+        lastTouch: "2026-10-25",
+        nextDate: "2026-11-05", // Overdue
+        nextAction: "Send updated luxury catalog and re-engage on call",
+        notes: "High potential broker but missed last scheduled meeting.",
+        createdAt: "2026-10-18"
+      },
+      {
+        id: "cp-3",
+        name: "Rohit Verma",
+        company: "Gurgaon Prime Realty",
+        reraName: "Gurgaon Prime Realty",
+        phone: "+91 98333 44556",
+        market: "Dwarka Expressway",
+        owner: "Prateek",
+        status: "Meeting Scheduled",
+        priority: "B - Develop",
+        clientBudget: "₹4–6 Cr",
+        clientType: "Investor",
+        activeRequirements: 0,
+        lastTouch: "2026-11-02",
+        nextDate: "2026-11-12",
+        nextAction: "Conduct face-to-face inventory presentation",
+        notes: "Active with HNI investors looking for rental yield.",
+        createdAt: "2026-10-20"
+      },
+      {
+        id: "cp-4",
+        name: "Tarun Chawla",
+        company: "Metro Assets Consultancy",
+        reraName: "Metro Assets Consultancy",
+        phone: "+91 98444 55667",
+        market: "Golf Course Road",
+        owner: "Unassigned",
+        status: "New",
+        priority: "A - High Potential",
+        clientBudget: "₹5–7 Cr",
+        clientType: "End user",
+        activeRequirements: 1,
+        lastTouch: "",
+        nextDate: "2026-11-10",
+        nextAction: "Assign dedicated sales manager and schedule first meeting",
+        notes: "Met at developer conclave. Very keen on ultra-luxury floor plans.",
+        createdAt: "2026-10-24"
+      },
+      {
+        id: "cp-5",
+        name: "Deepak Mehra",
+        company: "Prestige Property Partners",
+        reraName: "Prestige Property Partners",
+        phone: "+91 98555 66778",
+        market: "Southern Peripheral Road",
+        owner: "Pranay",
+        status: "Converted",
+        priority: "A - High Potential",
+        clientBudget: "₹10–15 Cr",
+        clientType: "Both",
+        activeRequirements: 3,
+        lastTouch: "2026-11-07",
+        nextDate: "2026-11-14",
+        nextAction: "Review brokerage invoice and client documentation for Tower A booking",
+        notes: "Closed ₹11 Cr luxury residence last quarter.",
+        createdAt: "2026-09-10"
+      }
+    ];
+
+    const INITIAL_OPPORTUNITIES = [
+      {
+        id: "opp-1",
+        clientName: "Dr. Rajiv Malhotra",
+        partnerId: "cp-1",
+        amountCr: 10.5,
+        stage: "site_visit",
+        estimatedClosure: "15 days",
+        requirement: "4 BHK Penthouse (5,500 sqft)",
+        nextStep: "Confirm Saturday 11 AM private walkthrough",
+        createdAt: "2026-10-28"
+      },
+      {
+        id: "opp-2",
+        clientName: "Sanjay Chhabra (Industrialist)",
+        partnerId: "cp-1",
+        amountCr: 14.0,
+        stage: "negotiation",
+        estimatedClosure: "7 days",
+        requirement: "Duplex Residence with private pool",
+        nextStep: "Review payment schedule with management",
+        createdAt: "2026-10-15"
+      },
+      {
+        id: "opp-3",
+        clientName: "Sunil Kapoor (Tech Founder)",
+        partnerId: "cp-2",
+        amountCr: 7.2,
+        stage: "meeting",
+        estimatedClosure: "30 days",
+        requirement: "3 BHK Luxury View Apartment",
+        nextStep: "Share sample flat video and pricing breakdown",
+        createdAt: "2026-11-01"
+      }
+    ];
+
+    const INITIAL_ACTIVITIES = [
+      {
+        id: "act-1",
+        partnerId: "cp-1",
+        type: "Meeting",
+        outcome: "Client introduced",
+        date: "2026-11-08",
+        owner: "Jasjeet",
+        notes: "Met Vikram at DLF Club. Introduced Dr. Malhotra looking for ₹10 Cr+ penthouse.",
+        nextFollowUp: new Date().toISOString().split('T')[0],
+        nextAction: "Confirm site visit for 4 BHK penthouse buyer",
+        clientDetail: "Dr. Rajiv Malhotra"
+      },
+      {
+        id: "act-2",
+        partnerId: "cp-5",
+        type: "Booking",
+        outcome: "Booking confirmed",
+        date: "2026-11-07",
+        owner: "Pranay",
+        notes: "Tower A Level 22 unit booking confirmed. Advance received.",
+        nextFollowUp: "2026-11-14",
+        nextAction: "Review brokerage invoice and client documentation",
+        clientDetail: "Harish Gupta"
+      }
+    ];
+
+    // Storage Management (Loads existing localStorage if available)
+    function loadDB() {
+      try {
+        const raw = localStorage.getItem("cpActivationDB");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.partners) && parsed.partners.length > 0) {
+            return {
+              partners: parsed.partners,
+              activities: parsed.activities || INITIAL_ACTIVITIES,
+              opportunities: parsed.opportunities || INITIAL_OPPORTUNITIES
+            };
           }
         }
-      }, 600);
+      } catch (e) {
+        console.warn("Storage fallback to defaults", e);
+      }
+      return {
+        partners: INITIAL_PARTNERS,
+        activities: INITIAL_ACTIVITIES,
+        opportunities: INITIAL_OPPORTUNITIES
+      };
+    }
+
+    let DB = loadDB();
+    let currentUser = { name: "Pranay", role: "admin" };
+    let activeTab = "command";
+    let selectedCPForSheet = null;
+    let pendingExcelRows = null;
+
+    function saveDB() {
+      try {
+        localStorage.setItem("cpActivationDB", JSON.stringify(DB));
+      } catch (e) {
+        console.error("Save error", e);
+      }
+    }
+
+    // Health Score Calculator (0-100)
+    function calculateHealthScore(partner) {
+      let score = 0;
+      const breakdown = { recency: 0, milestones: 0, adherence: 0, profile: 0 };
+      const today = new Date().toISOString().split('T')[0];
+
+      // 1. Recency (30 pts)
+      if (partner.lastTouch) {
+        const diffDays = Math.floor((new Date(today) - new Date(partner.lastTouch)) / (86400000));
+        if (diffDays <= 3) breakdown.recency = 30;
+        else if (diffDays <= 7) breakdown.recency = 25;
+        else if (diffDays <= 14) breakdown.recency = 15;
+        else if (diffDays <= 30) breakdown.recency = 5;
+      }
+
+      // 2. Milestones (30 pts)
+      if (partner.status === "Converted") breakdown.milestones = 30;
+      else if (partner.status === "Active") breakdown.milestones = 25;
+      else if (partner.status === "Meeting Done") breakdown.milestones = 18;
+      else if (partner.status === "Meeting Scheduled") breakdown.milestones = 12;
+      else if (partner.status === "Contacted") breakdown.milestones = 6;
+
+      // 3. Adherence (20 pts)
+      if (partner.nextDate) {
+        if (partner.nextDate < today) breakdown.adherence = 0; // Overdue penalty
+        else if (partner.nextDate === today) breakdown.adherence = 18;
+        else breakdown.adherence = 20;
+      }
+
+      // 4. Profile Completeness (20 pts)
+      let prof = 0;
+      if (partner.reraName) prof += 5;
+      if (partner.phone) prof += 5;
+      if (partner.owner && partner.owner !== "Unassigned") prof += 5;
+      if (partner.clientBudget) prof += 5;
+      breakdown.profile = prof;
+
+      score = breakdown.recency + breakdown.milestones + breakdown.adherence + breakdown.profile;
+      return { total: score, breakdown };
+    }
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      activeTab = tabId;
+      document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-tab').forEach(el => {
+        el.className = "nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 transition-colors";
+      });
+
+      const targetView = document.getElementById(`view-${tabId}`);
+      const targetTab = document.getElementById(`tab-${tabId}`);
+      if (targetView) targetView.classList.remove('hidden');
+      if (targetTab) targetTab.className = "nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-800 text-amber-300 border border-slate-700 font-semibold";
+
+      renderCurrentView();
+    }
+
+    function renderCurrentView() {
+      if (activeTab === "command") renderCommandCentre();
+      else if (activeTab === "directory") renderDirectory();
+      else if (activeTab === "pipeline") renderPipeline();
+      else if (activeTab === "actions") renderActions();
+      else if (activeTab === "team") renderTeam();
+      else if (activeTab === "meetings") renderMeetings();
+    }
+
+    // Render Command Centre
+    function renderCommandCentre() {
+      const today = new Date().toISOString().split('T')[0];
+      const activeCPs = DB.partners.filter(p => p.status === "Active" || p.status === "Converted").length;
+      const overdueCPs = DB.partners.filter(p => p.nextDate && p.nextDate < today);
+      const todayCPs = DB.partners.filter(p => p.nextDate === today);
+      const activationRate = DB.partners.length ? Math.round((activeCPs / DB.partners.length) * 100) : 0;
+      const totalPipelineCr = DB.opportunities.reduce((acc, o) => acc + (Number(o.amountCr) || 0), 0);
+
+      // Hero text update
+      document.getElementById('heroSummary').innerHTML = `Focus today on <strong class="text-amber-400 font-mono">${todayCPs.length} commitments</strong> and <strong class="text-rose-400 font-mono">${overdueCPs.length} overdue broker follow-ups</strong>. Total deal pipeline currently stands at <strong class="text-emerald-400 font-mono">₹${totalPipelineCr.toFixed(1)} Cr</strong>.`;
+
+      // KPI Grid
+      const kpis = [
+        { label: "Total Partners", val: DB.partners.length, sub: `${activeCPs} producing value` },
+        { label: "Activation Rate", val: `${activationRate}%`, sub: `${activeCPs} of ${DB.partners.length} active` },
+        { label: "Overdue Actions", val: overdueCPs.length, sub: "Needs intervention", alert: overdueCPs.length > 0 },
+        { label: "Today's Commitments", val: todayCPs.length, sub: "High priority calls" },
+        { label: "Pipeline Value", val: `₹${totalPipelineCr.toFixed(1)} Cr`, sub: `${DB.opportunities.length} luxury deals` },
+        { label: "Bookings (All-Time)", val: DB.partners.filter(p => p.status === "Converted").length, sub: "Closed transactions" }
+      ];
+
+      document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
+        <div class="glass-card rounded-2xl p-4 space-y-1 ${k.alert ? 'border-rose-900/40 bg-rose-950/10' : ''}">
+          <p class="text-[11px] font-mono uppercase tracking-wider text-slate-400">${k.label}</p>
+          <p class="text-xl sm:text-2xl font-black font-mono tracking-tight ${k.alert ? 'text-rose-400' : 'text-slate-100'}">${k.val}</p>
+          <p class="text-[10px] text-slate-500">${k.sub}</p>
+        </div>
+      `).join('');
+
+      // Today's Commitments List
+      document.getElementById('todayCountBadge').innerText = todayCPs.length;
+      document.getElementById('todayCommitmentsList').innerHTML = todayCPs.length ? todayCPs.map(p => `
+        <div class="glass-card glass-card-hover rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="font-bold text-slate-200 text-xs">${p.name}</span>
+              <span class="text-[11px] text-slate-400">· ${p.company || p.reraName}</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">${p.owner}</span>
+            </div>
+            <p class="text-xs text-amber-300 font-medium">Next: ${p.nextAction}</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="openCPDetail('${p.id}')" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 text-xs hover:bg-slate-700">Review</button>
+            <button onclick="quickCompleteAction('${p.id}')" class="px-2.5 py-1 rounded bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400">Complete</button>
+          </div>
+        </div>
+      `).join('') : '<p class="text-xs text-slate-500 py-3 text-center">No commitments due for today.</p>';
+
+      // Overdue List
+      document.getElementById('overdueCountBadge').innerText = overdueCPs.length;
+      document.getElementById('overdueInterventionsList').innerHTML = overdueCPs.length ? overdueCPs.map(p => {
+        const diff = Math.floor((new Date(today) - new Date(p.nextDate)) / 86400000);
+        return `
+          <div class="glass-card rounded-xl p-3 flex items-center justify-between border-rose-900/30 bg-rose-950/5">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="font-bold text-rose-300 text-xs">${p.name}</span>
+                <span class="text-[10px] text-rose-400 font-mono">(${diff}d overdue)</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">${p.nextAction} · Owner: ${p.owner}</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button onclick="openCPDetail('${p.id}')" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 text-xs">Review</button>
+              <button onclick="quickReschedule('${p.id}')" class="px-2.5 py-1 rounded bg-rose-600/20 text-rose-300 border border-rose-500/30 text-xs font-semibold">Reschedule</button>
+            </div>
+          </div>
+        `;
+      }).join('') : '<p class="text-xs text-emerald-400 py-2 text-center font-medium">✓ Zero overdue broker commitments.</p>';
+
+      // Untouched > 10 Days
+      const untouched = DB.partners.filter(p => {
+        if (!p.lastTouch) return true;
+        const diff = Math.floor((new Date(today) - new Date(p.lastTouch)) / 86400000);
+        return diff > 10;
+      });
+      document.getElementById('untouchedBadge').innerText = `${untouched.length} partners`;
+      document.getElementById('untouchedPartnersList').innerHTML = untouched.length ? untouched.slice(0, 3).map(p => `
+        <div onclick="openCPDetail('${p.id}')" class="glass-card glass-card-hover rounded-xl p-3 flex items-center justify-between cursor-pointer">
+          <div>
+            <span class="font-bold text-slate-200 text-xs">${p.name}</span>
+            <p class="text-[11px] text-slate-400">${p.company || p.reraName} · Owner: ${p.owner} · Budget: ${p.clientBudget || '₹5–8 Cr'}</p>
+          </div>
+          <span class="text-xs text-amber-400">Re-engage →</span>
+        </div>
+      `).join('') : '<p class="text-xs text-slate-500 py-2 text-center">All high-value partners engaged recently.</p>';
+
+      // 7-30 Day Pipeline List
+      document.getElementById('closurePipelineList').innerHTML = DB.opportunities.slice(0, 3).map(o => {
+        const cp = DB.partners.find(p => p.id === o.partnerId);
+        return `
+          <div class="glass-card rounded-xl p-3.5 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-200 text-xs">${o.clientName}</span>
+              <span class="font-mono font-bold text-amber-400 text-xs">₹${o.amountCr} Cr</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>CP: ${cp ? cp.name : 'Direct'}</span>
+              <span class="uppercase text-emerald-400 font-semibold">${o.stage.replace('_', ' ')}</span>
+            </div>
+            <p class="text-[11px] text-slate-400">Next: ${o.nextStep || 'Follow up on site inspection'}</p>
+          </div>
+        `;
+      }).join('');
+
+      // Team Pulse List
+      const teamNames = ["Jasjeet", "Prateek", "Naman", "Pranay"];
+      document.getElementById('teamPulseList').innerHTML = teamNames.map(name => {
+        const assigned = DB.partners.filter(p => p.owner === name);
+        const active = assigned.filter(p => p.status === "Active" || p.status === "Converted").length;
+        const overdue = assigned.filter(p => p.nextDate && p.nextDate < today).length;
+        return `
+          <div class="glass-card rounded-xl p-3 flex items-center justify-between text-xs">
+            <div>
+              <span class="font-bold text-slate-200">${name}</span>
+              <p class="text-[11px] text-slate-400">${active} of ${assigned.length} CPs active</p>
+            </div>
+            <div class="text-right font-mono">
+              <span class="${overdue > 0 ? 'text-rose-400 font-bold' : 'text-slate-400'}">${overdue} overdue</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render Directory
+    function renderDirectory() {
+      const q = (document.getElementById('dirSearch').value || "").toLowerCase();
+      const ownerF = document.getElementById('dirFilterOwner').value;
+      const statusF = document.getElementById('dirFilterStatus').value;
+      const priorityF = document.getElementById('dirFilterPriority').value;
+
+      const filtered = DB.partners.filter(p => {
+        if (q && !((p.name && p.name.toLowerCase().includes(q)) || (p.company && p.company.toLowerCase().includes(q)) || (p.phone && p.phone.includes(q)) || (p.reraName && p.reraName.toLowerCase().includes(q)))) return false;
+        if (ownerF && p.owner !== ownerF) return false;
+        if (statusF && p.status !== statusF) return false;
+        if (priorityF && p.priority !== priorityF) return false;
+        return true;
+      });
+
+      document.getElementById('directoryTableBody').innerHTML = filtered.map(p => {
+        const health = calculateHealthScore(p);
+        const healthColor = health.total >= 70 ? 'text-emerald-400' : health.total >= 45 ? 'text-amber-400' : 'text-rose-400';
+        return `
+          <tr class="hover:bg-slate-900/50 transition-colors">
+            <td class="py-3 px-4">
+              <div class="font-bold text-slate-200 text-xs">${p.name}</div>
+              <div class="text-[11px] text-slate-400">${p.company || p.reraName || 'Independent Broker'} · ${p.phone}</div>
+            </td>
+            <td class="py-3 px-4">
+              <select onchange="updatePartnerOwner('${p.id}', this.value)" class="bg-slate-900 border border-slate-700 hover:border-amber-400/50 rounded-lg px-2 py-1 text-xs text-slate-200 font-medium focus:outline-none focus:border-amber-400">
+                <option value="Unassigned" ${p.owner === 'Unassigned' || !p.owner ? 'selected' : ''}>Unassigned</option>
+                <option value="Jasjeet" ${p.owner === 'Jasjeet' ? 'selected' : ''}>Jasjeet</option>
+                <option value="Prateek" ${p.owner === 'Prateek' ? 'selected' : ''}>Prateek</option>
+                <option value="Naman" ${p.owner === 'Naman' ? 'selected' : ''}>Naman</option>
+                <option value="Pranay" ${p.owner === 'Pranay' ? 'selected' : ''}>Pranay</option>
+              </select>
+            </td>
+            <td class="py-3 px-4">
+              <span class="font-bold font-mono ${healthColor}">${health.total}/100</span>
+            </td>
+            <td class="py-3 px-4 font-mono text-slate-300">${p.clientBudget || '₹6–8 Cr'}</td>
+            <td class="py-3 px-4 text-slate-300 max-w-xs truncate">${p.nextAction}</td>
+            <td class="py-3 px-4 font-mono text-slate-400">${p.nextDate || 'Not set'}</td>
+            <td class="py-3 px-4 text-right">
+              <div class="flex items-center justify-end space-x-1.5">
+                <button onclick="openCPDetail('${p.id}')" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs">Profile</button>
+                <button onclick="deletePartner('${p.id}')" class="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors" title="Delete Channel Partner">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Render Deal Pipeline
+    function renderPipeline() {
+      const stages = [
+        { id: "lead", title: "Client Lead (20%)", color: "border-slate-700" },
+        { id: "meeting", title: "Client Meeting (40%)", color: "border-blue-700/40" },
+        { id: "site_visit", title: "Site Visit (60%)", color: "border-amber-600/40" },
+        { id: "negotiation", title: "Negotiation (80%)", color: "border-emerald-600/40" },
+        { id: "booking", title: "Booking (100%)", color: "border-purple-600/40" }
+      ];
+
+      document.getElementById('kanbanBoard').innerHTML = stages.map(st => {
+        const opps = DB.opportunities.filter(o => o.stage === st.id);
+        const stageTotal = opps.reduce((a, c) => a + (Number(c.amountCr) || 0), 0);
+        return `
+          <div class="glass-card rounded-2xl p-4 space-y-3 ${st.color}">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+              <span class="text-xs font-bold text-slate-200">${st.title}</span>
+              <span class="text-xs font-mono text-amber-400 font-bold">₹${stageTotal.toFixed(1)} Cr</span>
+            </div>
+            <div class="space-y-3 min-h-[300px]">
+              ${opps.map(o => {
+                const cp = DB.partners.find(p => p.id === o.partnerId);
+                return `
+                  <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2 hover:border-slate-700 transition-all">
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-slate-200 text-xs">${o.clientName}</span>
+                      <span class="font-mono font-bold text-amber-400 text-xs">₹${o.amountCr} Cr</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 font-mono">CP: ${cp ? cp.name : 'Direct'}</p>
+                    <p class="text-[11px] text-slate-300">${o.requirement || 'Luxury mandate'}</p>
+                    <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                      <span class="text-[10px] text-slate-500 font-mono">${o.estimatedClosure}</span>
+                      <button onclick="advanceOpportunity('${o.id}')" class="text-[10px] font-bold text-amber-400 hover:text-amber-300">Advance →</button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+              ${opps.length === 0 ? '<p class="text-xs text-slate-600 text-center py-8 italic">No deals in stage</p>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function advanceOpportunity(oppId) {
+      const order = ["lead", "meeting", "site_visit", "negotiation", "booking"];
+      const opp = DB.opportunities.find(o => o.id === oppId);
+      if (!opp) return;
+      const currIdx = order.indexOf(opp.stage);
+      if (currIdx < order.length - 1) {
+        opp.stage = order[currIdx + 1];
+        saveDB();
+        renderPipeline();
+      }
+    }
+
+    // Render Action Queue
+    function renderActions() {
+      const today = new Date().toISOString().split('T')[0];
+      const overdue = DB.partners.filter(p => p.nextDate && p.nextDate < today);
+      const dueToday = DB.partners.filter(p => p.nextDate === today);
+      const upcoming = DB.partners.filter(p => p.nextDate && p.nextDate > today);
+
+      document.getElementById('queueOverdueCount').innerText = overdue.length;
+      document.getElementById('queueTodayCount').innerText = dueToday.length;
+      document.getElementById('queueUpcomingCount').innerText = upcoming.length;
+
+      const renderCard = (p, isOverdue) => `
+        <div class="glass-card rounded-xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-200 text-xs">${p.name}</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded ${isOverdue ? 'bg-rose-500/10 text-rose-400' : 'bg-slate-800 text-slate-300'}">${p.nextDate}</span>
+          </div>
+          <p class="text-xs text-amber-300 font-medium">Next: ${p.nextAction}</p>
+          <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 text-[11px] text-slate-400">
+            <span>Owner: ${p.owner}</span>
+            <div class="flex items-center space-x-2">
+              <button onclick="openCPDetail('${p.id}')" class="text-xs text-slate-400 hover:text-slate-200">Review</button>
+              <button onclick="quickCompleteAction('${p.id}')" class="px-2.5 py-0.5 rounded bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400">Done</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('queueOverdueList').innerHTML = overdue.map(p => renderCard(p, true)).join('') || '<p class="text-xs text-slate-500 py-4 text-center">No overdue follow-ups.</p>';
+      document.getElementById('queueTodayList').innerHTML = dueToday.map(p => renderCard(p, false)).join('') || '<p class="text-xs text-slate-500 py-4 text-center">No follow-ups due today.</p>';
+      document.getElementById('queueUpcomingList').innerHTML = upcoming.map(p => renderCard(p, false)).join('') || '<p class="text-xs text-slate-500 py-4 text-center">No upcoming follow-ups.</p>';
+    }
+
+    const DEFAULT_TARGETS = {
+      Jasjeet: { targetMeetings: 12, targetLeads: 5, targetVisits: 3, targetBookings: 1 },
+      Prateek: { targetMeetings: 10, targetLeads: 4, targetVisits: 2, targetBookings: 1 },
+      Naman: { targetMeetings: 10, targetLeads: 4, targetVisits: 2, targetBookings: 1 },
+      Pranay: { targetMeetings: 8, targetLeads: 6, targetVisits: 4, targetBookings: 2 }
+    };
+
+    function updateTeamTarget(member, metric, value) {
+      if (!DB.targets) DB.targets = JSON.parse(JSON.stringify(DEFAULT_TARGETS));
+      if (!DB.targets[member]) DB.targets[member] = { targetMeetings: 10, targetLeads: 4, targetVisits: 2, targetBookings: 1 };
+      DB.targets[member][metric] = Math.max(0, parseInt(value) || 0);
+      saveDB();
+      renderTeam();
+    }
+
+    function updatePartnerOwner(partnerId, newOwner) {
+      const p = DB.partners.find(item => item.id === partnerId);
+      if (!p) return;
+      p.owner = newOwner;
+      saveDB();
+      renderCurrentView();
+    }
+
+    function deletePartner(partnerId) {
+      const p = DB.partners.find(item => item.id === partnerId);
+      if (!p) return;
+      if (confirm(`Delete channel partner "${p.name}"? This action cannot be undone.`)) {
+        DB.partners = DB.partners.filter(item => item.id !== partnerId);
+        DB.opportunities = DB.opportunities.filter(o => o.partnerId !== partnerId);
+        saveDB();
+        renderCurrentView();
+      }
+    }
+
+    // Render Team Performance
+    function renderTeam() {
+      const today = new Date().toISOString().split('T')[0];
+      if (!DB.targets) DB.targets = JSON.parse(JSON.stringify(DEFAULT_TARGETS));
+
+      const teamMembers = ["Jasjeet", "Prateek", "Naman", "Pranay"];
+      const team = teamMembers.map(name => {
+        const tg = DB.targets[name] || DEFAULT_TARGETS[name] || { targetMeetings: 10, targetLeads: 4, targetVisits: 2, targetBookings: 1 };
+        return {
+          name,
+          targetMeetings: tg.targetMeetings,
+          targetLeads: tg.targetLeads,
+          targetVisits: tg.targetVisits,
+          targetBookings: tg.targetBookings
+        };
+      });
+
+      document.getElementById('teamTargetsTableBody').innerHTML = team.map(t => {
+        const assigned = DB.partners.filter(p => p.owner === t.name);
+        const active = assigned.filter(p => p.status === "Active" || p.status === "Converted").length;
+        const overdue = assigned.filter(p => p.nextDate && p.nextDate < today).length;
+        const meetingsDone = DB.activities.filter(a => a.owner === t.name && a.type === "Meeting").length;
+        const leadsDone = DB.activities.filter(a => a.owner === t.name && (a.type === "Client lead" || a.outcome === "Client introduced")).length;
+        const visitsDone = DB.activities.filter(a => a.owner === t.name && a.type === "Site visit").length;
+        const bookingsDone = DB.activities.filter(a => a.owner === t.name && a.type === "Booking").length;
+
+        return `
+          <tr class="hover:bg-slate-900/50 transition-colors">
+            <td class="py-3 px-4 font-bold text-slate-200 text-xs">${t.name}</td>
+            <td class="py-3 px-4">
+              <div class="flex items-center space-x-2">
+                <input type="number" min="0" value="${t.targetMeetings}" onchange="updateTeamTarget('${t.name}', 'targetMeetings', this.value)" class="w-12 bg-slate-900 border border-slate-700 hover:border-amber-400 focus:border-amber-400 rounded-lg px-1.5 py-1 text-xs text-center font-mono text-white focus:outline-none" title="Edit Meetings Target">
+                <span class="text-slate-400 font-mono text-[11px]">${meetingsDone} act</span>
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="flex items-center space-x-2">
+                <input type="number" min="0" value="${t.targetLeads}" onchange="updateTeamTarget('${t.name}', 'targetLeads', this.value)" class="w-12 bg-slate-900 border border-slate-700 hover:border-amber-400 focus:border-amber-400 rounded-lg px-1.5 py-1 text-xs text-center font-mono text-white focus:outline-none" title="Edit Leads Target">
+                <span class="text-slate-400 font-mono text-[11px]">${leadsDone} act</span>
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="flex items-center space-x-2">
+                <input type="number" min="0" value="${t.targetVisits}" onchange="updateTeamTarget('${t.name}', 'targetVisits', this.value)" class="w-12 bg-slate-900 border border-slate-700 hover:border-amber-400 focus:border-amber-400 rounded-lg px-1.5 py-1 text-xs text-center font-mono text-white focus:outline-none" title="Edit Site Visits Target">
+                <span class="text-slate-400 font-mono text-[11px]">${visitsDone} act</span>
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="flex items-center space-x-2">
+                <input type="number" min="0" value="${t.targetBookings}" onchange="updateTeamTarget('${t.name}', 'targetBookings', this.value)" class="w-12 bg-slate-900 border border-slate-700 hover:border-amber-400 focus:border-amber-400 rounded-lg px-1.5 py-1 text-xs text-center font-mono text-white focus:outline-none" title="Edit Bookings Target">
+                <span class="text-slate-400 font-mono text-[11px]">${bookingsDone} act</span>
+              </div>
+            </td>
+            <td class="py-3 px-4 font-mono text-emerald-400">${active} of ${assigned.length}</td>
+            <td class="py-3 px-4 font-mono ${overdue > 0 ? 'text-rose-400 font-bold' : 'text-slate-400'}">${overdue}</td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('workloadCards').innerHTML = team.map(t => {
+        const count = DB.partners.filter(p => p.owner === t.name).length;
+        return `
+          <div class="glass-card rounded-xl p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-200 text-xs">${t.name}</span>
+              <span class="font-mono text-xs text-amber-400 font-bold">${count} CPs</span>
+            </div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div class="bg-amber-400 h-full rounded-full" style="width: ${Math.min(100, (count / 10) * 100)}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render Meetings Register
+    function renderMeetings() {
+      document.getElementById('meetingsRegisterTableBody').innerHTML = DB.activities.map(a => {
+        const cp = DB.partners.find(p => p.id === a.partnerId);
+        return `
+          <tr class="hover:bg-slate-900/50">
+            <td class="py-3 px-4 font-mono text-slate-400 text-xs">${a.date}</td>
+            <td class="py-3 px-4 font-bold text-slate-200 text-xs">${cp ? cp.name : 'Unknown Partner'}</td>
+            <td class="py-3 px-4 font-mono text-slate-300 text-xs">${a.owner}</td>
+            <td class="py-3 px-4 text-xs font-semibold text-amber-300">${a.type}</td>
+            <td class="py-3 px-4 text-xs text-slate-300">${a.outcome}</td>
+            <td class="py-3 px-4 text-xs font-mono text-slate-400">${a.clientDetail || '—'}</td>
+            <td class="py-3 px-4 text-xs text-slate-400 max-w-xs truncate">${a.notes}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Modal Helpers
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+      }
+
+      if (id === 'logActivityModal') {
+        const sel = document.getElementById('logPartnerId');
+        sel.innerHTML = DB.partners.map(p => `<option value="${p.id}">${p.name} (${p.company || p.reraName})</option>`).join('');
+        document.getElementById('logNextDate').value = new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0];
+      }
+
+      if (id === 'addOppModal') {
+        const sel = document.getElementById('oppPartnerId');
+        sel.innerHTML = DB.partners.map(p => `<option value="${p.id}">${p.name} (${p.company || p.reraName})</option>`).join('');
+      }
+
+      if (id === 'addCPModal') {
+        document.getElementById('modalCpNextDate').value = new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0];
+      }
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+      }
+    }
+
+    // Slide-over CP Detail Modal
+    function openCPDetail(partnerId) {
+      const p = DB.partners.find(item => item.id === partnerId);
+      if (!p) return;
+      selectedCPForSheet = p;
+
+      const health = calculateHealthScore(p);
+      document.getElementById('sheetCpName').innerText = p.name;
+      document.getElementById('sheetCpCompany').innerText = p.company || p.reraName || "Luxury Brokerage";
+      document.getElementById('sheetHealthScore').innerText = `${health.total}/100`;
+      document.getElementById('sheetHealthBar').style.width = `${health.total}%`;
+
+      document.getElementById('sheetHealthBreakdown').innerHTML = `
+        <div class="bg-slate-800/60 p-1.5 rounded"><div>Recency</div><div class="text-amber-400 font-bold">${health.breakdown.recency}/30</div></div>
+        <div class="bg-slate-800/60 p-1.5 rounded"><div>Milestone</div><div class="text-amber-400 font-bold">${health.breakdown.milestones}/30</div></div>
+        <div class="bg-slate-800/60 p-1.5 rounded"><div>Adherence</div><div class="text-amber-400 font-bold">${health.breakdown.adherence}/20</div></div>
+        <div class="bg-slate-800/60 p-1.5 rounded"><div>Profile</div><div class="text-amber-400 font-bold">${health.breakdown.profile}/20</div></div>
+      `;
+
+      document.getElementById('sheetReraName').innerText = p.reraName || "Unspecified";
+      document.getElementById('sheetPhone').innerText = p.phone || "—";
+      const ownerSel = document.getElementById('sheetOwnerSelect');
+      if (ownerSel) ownerSel.value = p.owner || "Unassigned";
+      document.getElementById('sheetBudget').innerText = p.clientBudget || "₹6–8 Cr";
+      document.getElementById('sheetNextAction').innerText = p.nextAction;
+      document.getElementById('sheetNextDate').innerText = p.nextDate || "Not scheduled";
+
+      // WhatsApp Button
+      document.getElementById('sheetWhatsAppBtn').onclick = () => {
+        const cleanPhone = (p.phone || "").replace(/\D/g, "");
+        const msg = encodeURIComponent(`Hi ${p.name}, Pranay here regarding our luxury portfolio updates. Let's touch base on the client requirements.`);
+        window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
+      };
+
+      // AI Briefing
+      document.getElementById('sheetBriefBtn').onclick = () => {
+        switchTab('aicoach');
+        closeModal('cpDetailModal');
+        runPreMeetingBrief(p);
+      };
+
+      // Timeline
+      const history = DB.activities.filter(a => a.partnerId === p.id);
+      document.getElementById('sheetTimeline').innerHTML = history.length ? history.map(h => `
+        <div class="glass-card rounded-xl p-3 text-xs space-y-1">
+          <div class="flex items-center justify-between text-slate-400 font-mono text-[10px]">
+            <span>${h.date} · ${h.type}</span>
+            <span class="text-amber-400">${h.outcome}</span>
+          </div>
+          <p class="text-slate-300">${h.notes}</p>
+        </div>
+      `).join('') : '<p class="text-xs text-slate-500 py-3 text-center">No recorded activity history.</p>';
+
+      openModal('cpDetailModal');
+    }
+
+    // Quick Actions
+    function quickCompleteAction(partnerId) {
+      const p = DB.partners.find(item => item.id === partnerId);
+      if (!p) return;
+      const today = new Date().toISOString().split('T')[0];
+      const nextDate = new Date(Date.now() + 86400000 * 4).toISOString().split('T')[0];
+
+      DB.activities.unshift({
+        id: "act-" + Date.now(),
+        partnerId: p.id,
+        type: "Call",
+        outcome: "Follow-up requested",
+        date: today,
+        owner: p.owner,
+        notes: `Completed commitment: ${p.nextAction}. Follow-up scheduled for 4 days out.`,
+        nextFollowUp: nextDate,
+        nextAction: "Touch base to review client feedback"
+      });
+
+      p.lastTouch = today;
+      p.nextDate = nextDate;
+      p.nextAction = "Touch base to review client feedback";
+
+      saveDB();
+      renderCurrentView();
+    }
+
+    function quickReschedule(partnerId) {
+      const p = DB.partners.find(item => item.id === partnerId);
+      if (!p) return;
+      const nextDate = new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0];
+      p.nextDate = nextDate;
+      p.nextAction = `[Rescheduled] ${p.nextAction}`;
+      saveDB();
+      renderCurrentView();
+    }
+
+    // Save Handlers
+    function handleSaveCP(e) {
+      e.preventDefault();
+      const newCP = {
+        id: "cp-" + Date.now(),
+        name: document.getElementById('modalCpName').value.trim(),
+        company: document.getElementById('modalCpCompany').value.trim(),
+        reraName: document.getElementById('modalCpRera').value.trim(),
+        phone: document.getElementById('modalCpPhone').value.trim(),
+        owner: document.getElementById('modalCpOwner').value,
+        priority: document.getElementById('modalCpPriority').value,
+        clientBudget: document.getElementById('modalCpBudget').value.trim(),
+        nextDate: document.getElementById('modalCpNextDate').value,
+        nextAction: document.getElementById('modalCpNextAction').value.trim(),
+        notes: document.getElementById('modalCpNotes').value.trim(),
+        status: "New",
+        lastTouch: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+
+      DB.partners.unshift(newCP);
+      saveDB();
+      closeModal('addCPModal');
+      renderCurrentView();
+    }
+
+    function handleSaveActivity(e) {
+      e.preventDefault();
+      const pId = document.getElementById('logPartnerId').value;
+      const p = DB.partners.find(item => item.id === pId);
+      const act = {
+        id: "act-" + Date.now(),
+        partnerId: pId,
+        type: document.getElementById('logType').value,
+        outcome: document.getElementById('logOutcome').value,
+        clientDetail: document.getElementById('logClientName').value.trim(),
+        notes: document.getElementById('logNotes').value.trim(),
+        nextFollowUp: document.getElementById('logNextDate').value,
+        nextAction: document.getElementById('logNextAction').value.trim(),
+        owner: p ? p.owner : currentUser.name,
+        date: new Date().toISOString().split('T')[0]
+      };
+
+      DB.activities.unshift(act);
+
+      if (p) {
+        p.lastTouch = act.date;
+        p.nextDate = act.nextFollowUp;
+        p.nextAction = act.nextAction;
+        if (act.type === "Meeting") p.status = "Meeting Done";
+        if (act.type === "Booking") p.status = "Converted";
+      }
+
+      saveDB();
+      closeModal('logActivityModal');
+      renderCurrentView();
+    }
+
+    function handleSaveOpportunity(e) {
+      e.preventDefault();
+      const newOpp = {
+        id: "opp-" + Date.now(),
+        clientName: document.getElementById('oppClientName').value.trim(),
+        partnerId: document.getElementById('oppPartnerId').value,
+        amountCr: parseFloat(document.getElementById('oppAmountCr').value) || 5.0,
+        stage: document.getElementById('oppStage').value,
+        estimatedClosure: document.getElementById('oppTimeline').value,
+        requirement: document.getElementById('oppRequirement').value.trim(),
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+
+      DB.opportunities.unshift(newOpp);
+      saveDB();
+      closeModal('addOppModal');
+      renderCurrentView();
+    }
+
+    // User Switcher & Admin PIN
+    function handleUserSwitch() {
+      const selected = document.getElementById('userSelectDropdown').value;
+      const pin = document.getElementById('userPinInput').value;
+
+      if (selected === "Pranay" && pin !== "7713") {
+        document.getElementById('userModalStatus').innerText = "Incorrect Security PIN. Please try again.";
+        return;
+      }
+
+      currentUser = {
+        name: selected,
+        role: selected === "Pranay" ? "admin" : "member"
+      };
+
+      document.getElementById('userName').innerText = selected;
+      document.getElementById('userAvatar').innerText = selected[0];
+      closeModal('userModal');
+    }
+
+    // AI Sales Intelligence Engine (Local Deterministic Expert Fallback)
+    function runAIPreset(type) {
+      const content = document.getElementById('aiOutputContent');
+      document.getElementById('aiStatusPill').innerText = "Analyzing...";
+
+      setTimeout(() => {
+        if (type === "pipeline") {
+          content.innerHTML = `
+            <div class="space-y-2">
+              <h4 class="font-bold text-amber-400">Executive Pipeline Audit: ₹${(DB.opportunities.reduce((a,c) => a + (Number(c.amountCr)||0), 0)).toFixed(1)} Cr</h4>
+              <p>1. <strong>Sanjay Chhabra (₹14 Cr - Negotiation):</strong> Deal has been in negotiation for 15+ days. Recommended intervention: offer tailored payment plan (30:40:30) linked to superstructure milestones to secure booking signature this Friday.</p>
+              <p>2. <strong>Dr. Rajiv Malhotra (₹10.5 Cr - Site Walkthrough):</strong> High emotional intent for 4BHK Penthouse. Arrange private morning walkthrough with architecture team to walk through terrace specifications.</p>
+            </div>
+          `;
+        } else if (type === "dormant") {
+          content.innerHTML = `
+            <div class="space-y-2">
+              <h4 class="font-bold text-amber-400">High-Net-Worth Broker Re-engagement Script</h4>
+              <p><strong>Broker:</strong> Anil Singhania (Singhania Real Estate Pvt Ltd)</p>
+              <p class="p-3 bg-slate-900 rounded-xl font-mono text-[11px] text-slate-300">"Anil ji, trust you're well. We've just quietly opened two pre-launch 4 BHK corner sky-villas on Golf Course Extension reserved for VIP private preview before public launch. Given your client base, I wanted to give you the first private look before inventory is allocated. Let's catch up for 10 minutes tomorrow."</p>
+            </div>
+          `;
+        } else {
+          content.innerHTML = `
+            <div class="space-y-2">
+              <h4 class="font-bold text-amber-400">Luxury Closing Levers for Delhi NCR Corridors</h4>
+              <p>1. <strong>Pre-possession Yield Guarantee:</strong> For NRI and corporate investors, guarantee a 12-month leasing assistance agreement with verified multinational tenant profiles.</p>
+              <p>2. <strong>Broker Spot-Incentive:</strong> Accelerate 50% commission release within 14 days of 10% booking receipt to dominate broker mindshare over competitor projects.</p>
+            </div>
+          `;
+        }
+        document.getElementById('aiStatusPill').innerText = "Ready";
+      }, 300);
+    }
+
+    function runPreMeetingBrief(partner) {
+      const content = document.getElementById('aiOutputContent');
+      document.getElementById('aiStatusPill').innerText = "Briefing Generated";
+      content.innerHTML = `
+        <div class="space-y-2.5">
+          <h4 class="font-bold text-amber-400">Pre-Meeting Executive Dossier: ${partner.name}</h4>
+          <p><strong>Firm:</strong> ${partner.company || partner.reraName} · <strong>Market:</strong> ${partner.market || 'Golf Course Road'}</p>
+          <div class="p-3 bg-slate-900 rounded-xl space-y-1.5 text-[11px]">
+            <div><strong>Broker Profile:</strong> Direct pipeline to senior corporate leadership. Resents generic follow-up calls; expects tailored unit inventory data.</div>
+            <div><strong>Target Discussion:</strong> ${partner.nextAction}</div>
+            <div><strong>Commercial Leverage:</strong> Share exclusive penthouse layout diagrams and highlight the double-height ceiling height of the new phase.</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function submitAICustomPrompt() {
+      const input = document.getElementById('aiCustomPrompt');
+      const q = input.value.trim();
+      if (!q) return;
+      document.getElementById('aiStatusPill').innerText = "Thinking...";
+      setTimeout(() => {
+        document.getElementById('aiOutputContent').innerHTML = `
+          <div class="space-y-2">
+            <h4 class="font-bold text-amber-400">Strategic Response: "${q}"</h4>
+            <p>Based on your current portfolio of ${DB.partners.length} channel partners and ₹${(DB.opportunities.reduce((a,c)=>a+(Number(c.amountCr)||0),0)).toFixed(1)} Cr in active pipeline:</p>
+            <p>Direct your team (Jasjeet, Prateek, Naman) to focus 80% of face-to-face meeting hours on the top 20% Tier-A brokers who already control active luxury buyer mandates in the ₹8–15 Cr bracket. Eliminate routine status check calls and replace them with physical site walkthrough invitations.</p>
+          </div>
+        `;
+        document.getElementById('aiStatusPill').innerText = "Ready";
+        input.value = "";
+      }, 400);
+    }
+
+    // Excel Studio & SheetJS Templates
+    function downloadExcelTemplate(type) {
+      let data = [];
+      let filename = "template.xlsx";
+
+      if (type === "cp_status") {
+        filename = "CP_Status_Template.xlsx";
+        data = [
+          { "Contact Person": "Vikram Sethi", "Company": "Apex Luxury Estates LLP", "RERA Reg.Name": "Apex Luxury Estates LLP", "Phone": "+91 98111 22334", "CP Owner": "Jasjeet", "Status": "Active", "Priority": "A - High Potential", "Client Budget": "₹8–12 Cr", "Next Follow-up": "2026-11-15", "Next Action": "Confirm penthouse walkthrough", "Notes": "High value partner" }
+        ];
+      } else if (type === "activity_log") {
+        filename = "Activity_Log_Template.xlsx";
+        data = [
+          { "Meeting Date": "2026-11-09", "Contact Person": "Vikram Sethi", "RERA Reg.Name": "Apex Luxury Estates LLP", "Phone Number": "+91 98111 22334", "Activity Type": "Meeting", "Outcome": "Client introduced", "Client Name": "Dr. Rajiv Malhotra", "CP Owner": "Jasjeet", "Meeting Notes": "Client looking for 4BHK", "Next Follow-up": "2026-11-12", "Next Action": "Site visit" }
+        ];
+      } else {
+        filename = "Ownership_Reallocation_Template.xlsx";
+        data = DB.partners.map(p => ({
+          "Contact Person": p.name,
+          "RERA Name": p.reraName || p.company,
+          "Phone Number": p.phone,
+          "CP Owner": p.owner,
+          "Status": p.status,
+          "Priority": p.priority,
+          "Next Follow-up": p.nextDate
+        }));
+      }
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+      XLSX.writeFile(wb, filename);
+    }
+
+    function handleExcelFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const json = XLSX.utils.sheet_to_json(firstSheet);
+
+          if (!json || json.length === 0) {
+            document.getElementById('excelStatusMessage').innerText = "Empty sheet detected.";
+            return;
+          }
+
+          pendingExcelRows = json;
+          showExcelPreview(json);
+        } catch (err) {
+          document.getElementById('excelStatusMessage').innerText = "Error parsing Excel: " + err.message;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function showExcelPreview(rows) {
+      const container = document.getElementById('excelPreviewContainer');
+      const tbody = document.getElementById('excelPreviewTableBody');
+      container.classList.remove('hidden');
+
+      tbody.innerHTML = rows.slice(0, 10).map((r, i) => {
+        const name = r['Contact Person'] || r['Contact Person Name'] || r['CP Name'] || r['Name'] || '';
+        const rera = r['RERA Reg.Name'] || r['RERA Name'] || r['Company'] || '';
+        const phone = r['Phone'] || r['Phone Number'] || r['Contact Number'] || '';
+        const owner = r['CP Owner'] || r['Owner'] || r['Team Member'] || 'Unassigned';
+        const status = r['Status'] || 'New';
+
+        const isDuplicate = DB.partners.some(p => p.phone && phone && p.phone.replace(/\D/g, '').slice(-10) === String(phone).replace(/\D/g, '').slice(-10));
+
+        return `
+          <tr class="${isDuplicate ? 'bg-amber-950/20' : ''}">
+            <td class="p-2 text-slate-500">${i + 1}</td>
+            <td class="p-2 font-bold text-slate-200">${name}</td>
+            <td class="p-2 text-slate-300">${rera}</td>
+            <td class="p-2 text-slate-400">${phone}</td>
+            <td class="p-2 text-slate-300">${owner}</td>
+            <td class="p-2 text-slate-300">${status}</td>
+            <td class="p-2 ${isDuplicate ? 'text-amber-400 font-bold' : 'text-emerald-400'}">${isDuplicate ? 'Update Match' : 'New Insert'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function commitExcelImport() {
+      if (!pendingExcelRows) return;
+      let added = 0;
+      let updated = 0;
+
+      pendingExcelRows.forEach(r => {
+        const name = r['Contact Person'] || r['Contact Person Name'] || r['CP Name'] || r['Name'];
+        if (!name) return;
+        const phone = String(r['Phone'] || r['Phone Number'] || r['Contact Number'] || '');
+        const normPhone = phone.replace(/\D/g, '').slice(-10);
+
+        const existing = DB.partners.find(p => p.phone && normPhone && p.phone.replace(/\D/g, '').slice(-10) === normPhone);
+
+        if (existing) {
+          if (r['CP Owner'] || r['Owner']) existing.owner = r['CP Owner'] || r['Owner'];
+          if (r['Status']) existing.status = r['Status'];
+          if (r['Priority']) existing.priority = r['Priority'];
+          if (r['Next Follow-up']) existing.nextDate = r['Next Follow-up'];
+          if (r['Next Action']) existing.nextAction = r['Next Action'];
+          updated++;
+        } else {
+          DB.partners.unshift({
+            id: "cp-" + Date.now() + Math.random(),
+            name: name,
+            company: r['Company'] || r['RERA Reg.Name'] || '',
+            reraName: r['RERA Reg.Name'] || r['RERA Name'] || '',
+            phone: phone,
+            owner: r['CP Owner'] || r['Owner'] || 'Unassigned',
+            status: r['Status'] || 'New',
+            priority: r['Priority'] || 'B - Develop',
+            clientBudget: r['Client Budget'] || '',
+            nextDate: r['Next Follow-up'] || new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+            nextAction: r['Next Action'] || 'Initiate relationship call',
+            notes: r['Notes'] || '',
+            lastTouch: new Date().toISOString().split('T')[0]
+          });
+          added++;
+        }
+      });
+
+      saveDB();
+      cancelExcelImport();
+      document.getElementById('excelStatusMessage').innerText = `✓ Import successful: ${added} new CPs added, ${updated} CPs updated.`;
+      renderCurrentView();
+    }
+
+    function cancelExcelImport() {
+      pendingExcelRows = null;
+      document.getElementById('excelPreviewContainer').classList.add('hidden');
+      document.getElementById('excelFileInput').value = '';
+    }
+
+    // CSV Exports
+    function exportCPsCSV() {
+      const ws = XLSX.utils.json_to_sheet(DB.partners);
+      const csv = XLSX.utils.sheet_to_csv(ws);
+      downloadBlob(csv, "Channel_Partners.csv", "text/csv");
+    }
+
+    function exportMeetingsCSV() {
+      const ws = XLSX.utils.json_to_sheet(DB.activities);
+      const csv = XLSX.utils.sheet_to_csv(ws);
+      downloadBlob(csv, "Meetings_Register.csv", "text/csv");
+    }
+
+    function downloadBlob(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Direct Download of this Entire Standalone HTML File
+    function downloadThisHTML() {
+      const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      downloadBlob(htmlContent, "index.html", "text/html");
+    }
+
+    // Boot App
+    function bootStandaloneApp() {
+      const container = document.getElementById("standalone-fallback-app");
+      if (!container || window.__VITE_REACT_ACTIVE__) return;
+      container.style.display = "block";
+      if (!document.getElementById("tw-cdn-script")) {
+        const tw = document.createElement("script");
+        tw.id = "tw-cdn-script";
+        tw.src = "https://cdn.tailwindcss.com";
+        tw.onload = () => {
+          window.tailwind.config = {
+            darkMode: "class",
+            theme: {
+              extend: {
+                fontFamily: {
+                  sans: ["\"Plus Jakarta Sans\"", "ui-sans-serif", "system-ui", "sans-serif"],
+                  mono: ["\"JetBrains Mono\"", "monospace"],
+                },
+                colors: {
+                  brand: { gold: "#EAB308", goldHover: "#CA8A04" }
+                }
+              }
+            }
+          };
+        };
+        document.head.appendChild(tw);
+      }
+      if (!document.getElementById("xlsx-cdn-script")) {
+        const xl = document.createElement("script");
+        xl.id = "xlsx-cdn-script";
+        xl.src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+        document.head.appendChild(xl);
+      }
+      renderCommandCentre();
+    }
+
+    if (window.location.hostname.endsWith("github.io") || window.location.protocol === "file:") {
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", bootStandaloneApp);
+      } else {
+        bootStandaloneApp();
+      }
+    } else {
+      window.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => {
+          const root = document.getElementById("root");
+          if (!window.__VITE_REACT_ACTIVE__ && (!root || root.children.length === 0)) {
+            bootStandaloneApp();
+          }
+        }, 450);
+      });
+    }
+  
     </script>
   </body>
 </html>
-
