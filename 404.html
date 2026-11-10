@@ -54,6 +54,14 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+    __hrp__, [data-ext-id] {
+      display: none !important;
+      visibility: hidden !important;
+      height: 0 !important;
+      width: 0 !important;
+      overflow: hidden !important;
+      pointer-events: none !important;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-[#090A0F] text-slate-100 antialiased selection:bg-amber-500/20 selection:text-amber-200">
@@ -2360,14 +2368,47 @@
       URL.revokeObjectURL(url);
     }
 
-    // Direct Download of this Entire Standalone HTML File
+    // Scrub any injected browser extension tags or text nodes (e.g. <__hrp__ data-ext-id="...">)
+    function scrubExtensionArtifacts() {
+      document.querySelectorAll('__hrp__, [data-ext-id]').forEach(el => el.remove());
+      [document.documentElement, document.body].forEach(root => {
+        if (!root) return;
+        Array.from(root.childNodes).forEach(node => {
+          if (node.nodeType === 3 && node.textContent && (node.textContent.includes('__hrp__') || node.textContent.includes('data-ext-id'))) {
+            node.remove();
+          }
+        });
+      });
+    }
+
+    // Direct Download of Clean Standalone HTML File (Stripping any browser extension artifacts)
     function downloadThisHTML() {
-      const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-      downloadBlob(htmlContent, "index.html", "text/html");
+      scrubExtensionArtifacts();
+      const clone = document.documentElement.cloneNode(true);
+      clone.querySelectorAll('__hrp__, [data-ext-id], script[src^="chrome-extension://"]').forEach(el => el.remove());
+      // Ensure the downloaded HTML always starts with the mandatory PIN gate locked
+      const clonedUserModal = clone.querySelector('#userModal');
+      if (clonedUserModal) {
+        clonedUserModal.className = "fixed inset-0 z-[100] bg-[#090A0F] flex items-center justify-center p-4";
+      }
+      const clonedCloseBtn = clone.querySelector('#userModalCloseBtn');
+      if (clonedCloseBtn) {
+        clonedCloseBtn.classList.add('hidden');
+      }
+      let htmlContent = "<!DOCTYPE html>\n" + clone.outerHTML;
+      htmlContent = htmlContent
+        .replace(/<__hrp__[^>]*>[\s\S]*?<\/__hrp__>/gi, '')
+        .replace(/<\/?__hrp__[^>]*>/gi, '')
+        .replace(/&lt;\/?__hrp__[\s\S]*?&gt;/gi, '');
+      downloadBlob(htmlContent, "index.html", "text/html;charset=utf-8");
     }
 
     // Boot App
     document.addEventListener("DOMContentLoaded", () => {
+      scrubExtensionArtifacts();
+      const obs = new MutationObserver(() => scrubExtensionArtifacts());
+      obs.observe(document.documentElement, { childList: true, subtree: true });
+
       syncOwnerDropdowns();
       renderCommandCentre();
       const pinInput = document.getElementById('userPinInput');
