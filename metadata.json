@@ -1,0 +1,6 @@
+{
+  "name": "Pranay CP Intelligence Suite",
+  "description": "Apple-grade Channel Partner Management & Luxury Real Estate Sales Intelligence System with executive command centre, deal pipeline, and AI performance coaching.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
