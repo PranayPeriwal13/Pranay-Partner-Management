@@ -247,8 +247,9 @@
           <h2 class="text-xl font-bold text-slate-100">Channel Partner Directory</h2>
           <p class="text-xs text-slate-400">Roster of accredited luxury brokers with real-time health score and active buyer mandates</p>
         </div>
-        <div class="flex items-center space-x-2">
-          <button onclick="exportCPsCSV()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-400 text-slate-950 hover:bg-cyan-300 shadow-sm">Export CSV</button>
+        <div class="flex items-center space-x-2 flex-wrap">
+          <button id="btnExportCPsExcel" onclick="exportCPsExcel()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-400 text-slate-950 hover:bg-emerald-300 shadow-sm">Export Excel</button>
+          <button id="btnExportCPsCSV" onclick="exportCPsCSV()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-400 text-slate-950 hover:bg-cyan-300 shadow-sm">Export CSV</button>
           <button onclick="openModal('addCPModal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-400 text-slate-950 hover:bg-amber-300 shadow-sm">+ Add Partner</button>
         </div>
       </div>
@@ -771,11 +772,11 @@
     </div>
   </div>
 
-  <!-- Add Opportunity Modal -->
+  <!-- Add / Edit Opportunity Modal -->
   <div id="addOppModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="glass-card rounded-2xl w-full max-w-lg p-6 space-y-4 border border-slate-800">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <h3 class="text-base font-bold text-slate-100">Add Pipeline Opportunity</h3>
+        <h3 id="oppModalTitle" class="text-base font-bold text-slate-100">Add Pipeline Opportunity</h3>
         <button onclick="closeModal('addOppModal')" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
       </div>
       <form onsubmit="handleSaveOpportunity(event)" class="space-y-4 text-xs">
@@ -822,7 +823,7 @@
         </div>
         <div class="flex items-center justify-end space-x-2 pt-2">
           <button type="button" onclick="closeModal('addOppModal')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold">Cancel</button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">Save Opportunity</button>
+          <button id="oppSubmitBtn" type="submit" class="px-5 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">Save Opportunity</button>
         </div>
       </form>
     </div>
@@ -1584,21 +1585,49 @@
       }).join('');
     }
 
-    // Render Directory (RERA Name Highlighted First, Individual Partner Name Second)
-    function renderDirectory() {
-      const q = (document.getElementById('dirSearch').value || "").toLowerCase();
-      const ownerF = document.getElementById('dirFilterOwner').value;
-      const statusF = document.getElementById('dirFilterStatus').value;
-      const priorityF = document.getElementById('dirFilterPriority').value;
-      const owners = getActiveOwners();
+    // Helper to get currently filtered Channel Partners in CP Directory
+    function getFilteredDirectoryPartners() {
+      const searchEl = document.getElementById('dirSearch');
+      const ownerEl = document.getElementById('dirFilterOwner');
+      const statusEl = document.getElementById('dirFilterStatus');
+      const priorityEl = document.getElementById('dirFilterPriority');
 
-      const filtered = DB.partners.filter(p => {
-        if (q && !((p.name && p.name.toLowerCase().includes(q)) || (p.company && p.company.toLowerCase().includes(q)) || (p.phone && p.phone.includes(q)) || (p.reraName && p.reraName.toLowerCase().includes(q)))) return false;
-        if (ownerF && p.owner !== ownerF) return false;
+      const q = ((searchEl && searchEl.value) || "").toLowerCase().trim();
+      const ownerF = (ownerEl && ownerEl.value) || "";
+      const statusF = (statusEl && statusEl.value) || "";
+      const priorityF = (priorityEl && priorityEl.value) || "";
+
+      return DB.partners.filter(p => {
+        if (q && !(
+          (p.name && p.name.toLowerCase().includes(q)) ||
+          (p.company && p.company.toLowerCase().includes(q)) ||
+          (p.phone && String(p.phone).includes(q)) ||
+          (p.reraName && p.reraName.toLowerCase().includes(q)) ||
+          (p.market && p.market.toLowerCase().includes(q)) ||
+          (p.owner && p.owner.toLowerCase().includes(q))
+        )) return false;
+        if (ownerF) {
+          if (ownerF === 'Unassigned') {
+            if (p.owner && p.owner !== 'Unassigned') return false;
+          } else if (p.owner !== ownerF) {
+            return false;
+          }
+        }
         if (statusF && p.status !== statusF) return false;
         if (priorityF && p.priority !== priorityF) return false;
         return true;
       });
+    }
+
+    // Render Directory (RERA Name Highlighted First, Individual Partner Name Second)
+    function renderDirectory() {
+      const owners = getActiveOwners();
+      const filtered = getFilteredDirectoryPartners();
+
+      const btnExcel = document.getElementById('btnExportCPsExcel');
+      const btnCSV = document.getElementById('btnExportCPsCSV');
+      if (btnExcel) btnExcel.innerText = `Export Excel (${filtered.length})`;
+      if (btnCSV) btnCSV.innerText = `Export CSV (${filtered.length})`;
 
       document.getElementById('directoryTableBody').innerHTML = filtered.map(p => {
         const health = calculateHealthScore(p);
@@ -1668,18 +1697,22 @@
                 const cp = DB.partners.find(p => p.id === o.partnerId);
                 return `
                   <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2 hover:border-slate-700 transition-all">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between gap-2">
                       <span class="font-bold text-slate-200 text-xs">${o.clientName}</span>
-                      <span class="font-mono font-bold text-amber-400 text-xs">₹${o.amountCr} Cr</span>
+                      <button type="button" onclick="openEditOpportunity('${o.id}')" title="Click to edit Deal Value" class="px-2 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 font-mono font-bold text-emerald-300 text-xs transition-colors">₹${o.amountCr} Cr</button>
                     </div>
-                    <div class="bg-slate-950/70 border border-slate-800/80 rounded-lg p-2 space-y-0.5">
-                      <p class="text-[11px] font-bold text-amber-300 truncate">${cp ? (cp.reraName || cp.company || cp.name) : 'Direct'}</p>
+                    <div onclick="openEditOpportunity('${o.id}')" title="Click to change Associated Channel Partner" class="bg-slate-950/70 border border-slate-800/80 hover:border-amber-500/40 rounded-lg p-2 space-y-0.5 cursor-pointer transition-colors">
+                      <p class="text-[11px] font-bold text-amber-300 truncate">${cp ? (cp.reraName || cp.company || cp.name) : 'Direct Mandate'}</p>
                       <p class="text-[10px] text-slate-300">Contact: <span class="text-white font-medium">${cp ? cp.name : 'Direct'}</span> · Owner: ${cp ? cp.owner : '—'}</p>
                     </div>
                     <p class="text-[11px] text-slate-300">${o.requirement || 'Luxury mandate'}</p>
-                    <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                    <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-1.5">
                       <span class="text-[10px] text-slate-500 font-mono">${o.estimatedClosure}</span>
-                      <button onclick="advanceOpportunity('${o.id}')" class="px-2 py-0.5 rounded bg-amber-400 text-slate-950 text-[10px] font-bold hover:bg-amber-300">Advance →</button>
+                      <div class="flex items-center space-x-1">
+                        <button type="button" onclick="openEditOpportunity('${o.id}')" class="px-2 py-0.5 rounded bg-sky-400 text-slate-950 text-[10px] font-bold hover:bg-sky-300" title="Edit Deal Value & Channel Partner">Edit</button>
+                        <button type="button" onclick="advanceOpportunity('${o.id}')" class="px-2 py-0.5 rounded bg-amber-400 text-slate-950 text-[10px] font-bold hover:bg-amber-300">Advance →</button>
+                        <button type="button" onclick="deleteOpportunity('${o.id}')" class="px-1.5 py-0.5 rounded bg-rose-500 text-white text-[10px] font-bold hover:bg-rose-400" title="Delete Deal">✕</button>
+                      </div>
                     </div>
                   </div>
                 `;
@@ -1689,6 +1722,45 @@
           </div>
         `;
       }).join('');
+    }
+
+    let editingOppId = null;
+
+    function openEditOpportunity(oppId) {
+      const opp = DB.opportunities.find(o => o.id === oppId);
+      if (!opp) return;
+      editingOppId = opp.id;
+      const sel = document.getElementById('oppPartnerId');
+      if (sel) {
+        sel.innerHTML = DB.partners.map(p => `<option value="${p.id}">${p.reraName || p.company || p.name} — Contact: ${p.name} (Owner: ${p.owner || 'Unassigned'})</option>`).join('') + `<option value="direct">Direct Mandate / Walk-in</option>`;
+        sel.value = DB.partners.some(p => p.id === opp.partnerId) ? opp.partnerId : 'direct';
+      }
+      const titleEl = document.getElementById('oppModalTitle');
+      if (titleEl) titleEl.innerText = "Edit Deal Value & Channel Partner";
+      const submitBtn = document.getElementById('oppSubmitBtn');
+      if (submitBtn) submitBtn.innerText = "Save Deal Changes";
+
+      document.getElementById('oppClientName').value = opp.clientName || "";
+      document.getElementById('oppAmountCr').value = opp.amountCr || 5.0;
+      document.getElementById('oppStage').value = opp.stage || "lead";
+      document.getElementById('oppTimeline').value = opp.estimatedClosure || "15 days";
+      document.getElementById('oppRequirement').value = opp.requirement || "";
+
+      const el = document.getElementById('addOppModal');
+      if (el) {
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+      }
+    }
+
+    function deleteOpportunity(oppId) {
+      const opp = DB.opportunities.find(o => o.id === oppId);
+      if (!opp) return;
+      if (confirm(`Remove deal "${opp.clientName}" (₹${opp.amountCr} Cr) from pipeline?`)) {
+        DB.opportunities = DB.opportunities.filter(o => o.id !== oppId);
+        saveDB();
+        renderCurrentView();
+      }
     }
 
     function advanceOpportunity(oppId) {
@@ -1910,8 +1982,18 @@
       }
 
       if (id === 'addOppModal') {
+        editingOppId = null;
+        const titleEl = document.getElementById('oppModalTitle');
+        if (titleEl) titleEl.innerText = "Add Pipeline Opportunity";
+        const submitBtn = document.getElementById('oppSubmitBtn');
+        if (submitBtn) submitBtn.innerText = "Save Opportunity";
         const sel = document.getElementById('oppPartnerId');
-        sel.innerHTML = DB.partners.map(p => `<option value="${p.id}">${p.reraName || p.company || p.name} — Contact: ${p.name}</option>`).join('');
+        sel.innerHTML = DB.partners.map(p => `<option value="${p.id}">${p.reraName || p.company || p.name} — Contact: ${p.name} (Owner: ${p.owner || 'Unassigned'})</option>`).join('') + `<option value="direct">Direct Mandate / Walk-in</option>`;
+        document.getElementById('oppClientName').value = "";
+        document.getElementById('oppAmountCr').value = "";
+        document.getElementById('oppStage').value = "lead";
+        document.getElementById('oppTimeline').value = "15 days";
+        document.getElementById('oppRequirement').value = "";
       }
 
       if (id === 'addCPModal') {
@@ -2136,18 +2218,38 @@
 
     function handleSaveOpportunity(e) {
       e.preventDefault();
-      const newOpp = {
-        id: "opp-" + Date.now(),
-        clientName: document.getElementById('oppClientName').value.trim(),
-        partnerId: document.getElementById('oppPartnerId').value,
-        amountCr: parseFloat(document.getElementById('oppAmountCr').value) || 5.0,
-        stage: document.getElementById('oppStage').value,
-        estimatedClosure: document.getElementById('oppTimeline').value,
-        requirement: document.getElementById('oppRequirement').value.trim(),
-        createdAt: new Date().toISOString().split('T')[0]
-      };
+      const clientName = document.getElementById('oppClientName').value.trim();
+      const partnerId = document.getElementById('oppPartnerId').value;
+      const amountCr = parseFloat(document.getElementById('oppAmountCr').value) || 5.0;
+      const stage = document.getElementById('oppStage').value;
+      const estimatedClosure = document.getElementById('oppTimeline').value;
+      const requirement = document.getElementById('oppRequirement').value.trim();
 
-      DB.opportunities.unshift(newOpp);
+      if (editingOppId) {
+        const existing = DB.opportunities.find(o => o.id === editingOppId);
+        if (existing) {
+          existing.clientName = clientName;
+          existing.partnerId = partnerId;
+          existing.amountCr = amountCr;
+          existing.stage = stage;
+          existing.estimatedClosure = estimatedClosure;
+          existing.requirement = requirement;
+        }
+        editingOppId = null;
+      } else {
+        const newOpp = {
+          id: "opp-" + Date.now(),
+          clientName,
+          partnerId,
+          amountCr,
+          stage,
+          estimatedClosure,
+          requirement,
+          createdAt: new Date().toISOString().split('T')[0]
+        };
+        DB.opportunities.unshift(newOpp);
+      }
+
       saveDB();
       closeModal('addOppModal');
       renderCurrentView();
@@ -2466,29 +2568,132 @@
       document.getElementById('excelFileInput').value = '';
     }
 
-    // CSV Exports
+    // CSV & Excel Exports (Respecting Active Filters in CP Directory)
     function exportCPsCSV() {
-      const ws = XLSX.utils.json_to_sheet(DB.partners);
-      const csv = XLSX.utils.sheet_to_csv(ws);
-      downloadBlob(csv, "Channel_Partners.csv", "text/csv");
+      const filtered = getFilteredDirectoryPartners();
+      const headers = [
+        "RERA Registered Name",
+        "Contact Person",
+        "Phone Number",
+        "Company / Agency",
+        "Assigned Owner",
+        "Priority Tier",
+        "Status",
+        "Primary Market",
+        "Client Budget",
+        "Active Client Requirements",
+        "Last Contact Date",
+        "Next Follow-Up Date",
+        "Next Committed Action",
+        "Targeting Plan",
+        "Notes"
+      ];
+      const rows = filtered.map(p => [
+        p.reraName || p.company || p.name || "",
+        p.name || "",
+        p.phone || "",
+        p.company || p.reraName || "",
+        p.owner || "Unassigned",
+        p.priority || "B - Develop",
+        p.status || "New",
+        p.market || "",
+        p.clientBudget || p.budget || "",
+        p.activeRequirements ?? p.requirements ?? 0,
+        p.lastTouch || "",
+        p.nextDate || "",
+        p.nextAction || "",
+        p.targetPlan || "",
+        (p.notes || "").replace(/[\r\n]+/g, " ")
+      ]);
+      const csv = "\uFEFF" + [headers, ...rows]
+        .map(r => r.map(c => `"${String(c ?? "").replace(/"/g, '""')}"`).join(","))
+        .join("\r\n");
+      const today = new Date().toISOString().split('T')[0];
+      downloadBlob(csv, `CP_Directory_Filtered_${filtered.length}_${today}.csv`, "text/csv;charset=utf-8;");
+    }
+
+    function exportCPsExcel() {
+      const filtered = getFilteredDirectoryPartners();
+      const headers = [
+        "RERA Name",
+        "Contact Person",
+        "Phone Number",
+        "Owner",
+        "Priority",
+        "Status",
+        "Primary Market",
+        "Client Budget",
+        "Active Client Requirements",
+        "Last Contact Date",
+        "Next Follow-up Date",
+        "Next Action",
+        "Latest Notes"
+      ];
+      const rows = filtered.map(p => [
+        p.reraName || p.company || p.name || "",
+        p.name || "",
+        p.phone || "",
+        p.owner || "Unassigned",
+        p.priority || "B - Develop",
+        p.status || "New",
+        p.market || "",
+        p.clientBudget || p.budget || "",
+        p.activeRequirements ?? p.requirements ?? 0,
+        p.lastTouch || "",
+        p.nextDate || "",
+        p.nextAction || "",
+        p.notes || ""
+      ]);
+      const today = new Date().toISOString().split('T')[0];
+      if (typeof XLSX !== 'undefined') {
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+        XLSX.utils.book_append_sheet(wb, ws, "CP Status");
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        downloadBlob(wbout, `CP_Directory_Filtered_${filtered.length}_${today}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      } else {
+        exportCPsCSV();
+      }
     }
 
     function exportMeetingsCSV() {
-      const ws = XLSX.utils.json_to_sheet(DB.activities);
-      const csv = XLSX.utils.sheet_to_csv(ws);
-      downloadBlob(csv, "Meetings_Register.csv", "text/csv");
+      const headers = ["Date", "RERA Name", "Contact Person", "Type", "Outcome", "Client Mandate", "Owner", "Notes", "Next Follow-Up", "Next Action"];
+      const rows = DB.activities.map(a => {
+        const cp = DB.partners.find(p => p.id === a.partnerId);
+        return [
+          a.date || "",
+          cp ? (cp.reraName || cp.company || cp.name) : "",
+          cp ? cp.name : "",
+          a.type || "",
+          a.outcome || "",
+          a.clientDetail || "",
+          a.owner || "",
+          (a.notes || "").replace(/[\r\n]+/g, " "),
+          a.nextFollowUp || "",
+          a.nextAction || ""
+        ];
+      });
+      const csv = "\uFEFF" + [headers, ...rows]
+        .map(r => r.map(c => `"${String(c ?? "").replace(/"/g, '""')}"`).join(","))
+        .join("\r\n");
+      downloadBlob(csv, "Meetings_Register.csv", "text/csv;charset=utf-8;");
     }
 
     function downloadBlob(content, filename, mimeType) {
       const blob = new Blob([content], { type: mimeType });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
+      a.style.display = 'none';
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      setTimeout(() => {
+        if (document.body.contains(a)) {
+          document.body.removeChild(a);
+        }
+        URL.revokeObjectURL(url);
+      }, 500);
     }
 
     // Direct Download of Clean Standalone HTML File (Stripping any browser extension artifacts)
@@ -2514,6 +2719,7 @@
 
     // Boot App
     document.addEventListener("DOMContentLoaded", () => {
+      if (!document.getElementById('heroSummary')) return;
       syncOwnerDropdowns();
       renderCommandCentre();
       const pinInput = document.getElementById('userPinInput');
