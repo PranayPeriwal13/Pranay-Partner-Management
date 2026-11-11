@@ -863,28 +863,102 @@
         </button>
       </div>
 
-      <!-- Intel & Notes -->
-      <div class="space-y-3">
-        <h4 class="text-xs font-bold uppercase font-mono text-slate-400">Key Information</h4>
-        <div class="glass-card rounded-xl p-4 text-xs space-y-2">
-          <div class="flex justify-between"><span class="text-slate-400">RERA Name:</span><span id="sheetReraName" class="text-amber-300 font-bold"></span></div>
-          <div class="flex justify-between items-center"><span class="text-slate-400">Phone:</span><span id="sheetPhone" class="text-slate-200 font-mono"></span></div>
-          <div class="flex justify-between items-center">
-            <span class="text-slate-400">Assigned Owner:</span>
-            <select id="sheetOwnerSelect" onchange="if(selectedCPForSheet){ updatePartnerOwner(selectedCPForSheet.id, this.value); }" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-slate-200 focus:outline-none focus:border-amber-400 text-xs">
-              <option value="Unassigned">Unassigned</option>
-              <option value="Jasjeet">Jasjeet</option>
-              <option value="Prateek">Prateek</option>
-              <option value="Naman">Naman</option>
-              <option value="Pranay">Pranay</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div class="flex justify-between"><span class="text-slate-400">Client Budget:</span><span id="sheetBudget" class="text-slate-200"></span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Next Action:</span><span id="sheetNextAction" class="text-amber-300 font-medium text-right"></span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Next Date:</span><span id="sheetNextDate" class="text-slate-200 font-mono"></span></div>
+      <!-- Editable Profile Fields -->
+      <form onsubmit="saveCPDetailProfile(event)" class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-bold uppercase font-mono text-amber-400">Edit Channel Partner Profile (All Fields)</h4>
+          <button type="submit" class="px-4 py-1.5 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold text-xs shadow-sm">
+            Save Profile Changes
+          </button>
         </div>
-      </div>
+        <p id="sheetSavedNotice" class="hidden text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2">✓ Profile changes saved!</p>
+        <div class="glass-card rounded-xl p-4 text-xs space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-amber-300 font-semibold mb-1">RERA Registered Name *</label>
+              <input type="text" id="sheetReraInput" required class="w-full bg-slate-950 border border-amber-500/40 rounded-lg px-2.5 py-1.5 text-amber-200 font-bold focus:outline-none focus:border-amber-400">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-medium mb-1">Contact Person Name *</label>
+              <input type="text" id="sheetContactInput" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-amber-400">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-medium mb-1">Agency / Company Name</label>
+              <input type="text" id="sheetCompanyInput" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-amber-400">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-medium mb-1">Phone Number</label>
+              <input type="text" id="sheetPhoneInput" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono focus:outline-none focus:border-amber-400">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-medium mb-1">Assigned Owner</label>
+              <select id="sheetOwnerSelect" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-amber-400">
+                <option value="Unassigned">Unassigned</option>
+                <option value="Jasjeet">Jasjeet</option>
+                <option value="Prateek">Prateek</option>
+                <option value="Naman">Naman</option>
+                <option value="Pranay">Pranay</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-300 font-medium mb-1">Priority Tier</label>
+              <select id="sheetPrioritySelect" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-amber-300 font-bold focus:outline-none focus:border-amber-400">
+                <option value="A - High Potential">A - High Potential</option>
+                <option value="B - Develop">B - Develop</option>
+                <option value="C - Nurture">C - Nurture</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-300 font-medium mb-1">Status</label>
+              <select id="sheetStatusSelect" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-amber-400">
+                <option value="New">New</option>
+                <option value="Contacted">Contacted</option>
+                <option value="Meeting Scheduled">Meeting Scheduled</option>
+                <option value="Meeting Done">Meeting Done</option>
+                <option value="Active">Active</option>
+                <option value="Dormant">Dormant</option>
+                <option value="Converted">Converted</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-300 font-medium mb-1">Primary Market</label>
+              <input type="text" id="sheetMarketInput" placeholder="e.g. Golf Course Road" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-amber-400">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-medium mb-1">Client Budget Profile</label>
+              <input type="text" id="sheetBudgetInput" placeholder="e.g. ₹8–12 Cr" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono focus:outline-none focus:border-amber-400">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-medium mb-1">Active Buyer Requirements</label>
+              <input type="number" min="0" id="sheetReqsInput" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono focus:outline-none focus:border-amber-400">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-medium mb-1">Last Contact Date</label>
+              <input type="date" id="sheetLastTouchInput" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono focus:outline-none focus:border-amber-400">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-medium mb-1">Next Follow-up Due Date</label>
+              <input type="date" id="sheetNextDateInput" class="w-full bg-slate-950 border border-amber-500/40 rounded-lg px-2.5 py-1.5 text-amber-300 font-mono focus:outline-none focus:border-amber-400">
+            </div>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">Committed Next Action</label>
+            <input type="text" id="sheetNextActionInput" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-amber-400">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">Targeting Plan</label>
+            <textarea rows="2" id="sheetTargetPlanInput" placeholder="Target commercial milestone..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-amber-400"></textarea>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">Latest Discussion Notes</label>
+            <textarea rows="3" id="sheetNotesInput" placeholder="Discussion notes & broker remarks..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-amber-400"></textarea>
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold text-xs shadow-sm">
+            Save All Profile Changes
+          </button>
+        </div>
+      </form>
 
       <!-- Interaction History -->
       <div class="space-y-3">
@@ -1877,13 +1951,25 @@
         <div class="bg-slate-800/60 p-1.5 rounded"><div>Profile</div><div class="text-amber-400 font-bold">${health.breakdown.profile}/20</div></div>
       `;
 
-      document.getElementById('sheetReraName').innerText = p.reraName || p.company || "Unspecified";
-      document.getElementById('sheetPhone').innerText = `${p.name} · ${p.phone || "—"}`;
+      const notice = document.getElementById('sheetSavedNotice');
+      if (notice) notice.classList.add('hidden');
+
+      document.getElementById('sheetReraInput').value = p.reraName || p.company || "";
+      document.getElementById('sheetContactInput').value = p.name || "";
+      document.getElementById('sheetCompanyInput').value = p.company || p.reraName || "";
+      document.getElementById('sheetPhoneInput').value = p.phone || "";
       const ownerSel = document.getElementById('sheetOwnerSelect');
       if (ownerSel) ownerSel.value = p.owner || "Unassigned";
-      document.getElementById('sheetBudget').innerText = p.clientBudget || "₹6–8 Cr";
-      document.getElementById('sheetNextAction').innerText = p.nextAction;
-      document.getElementById('sheetNextDate').innerText = p.nextDate || "Not scheduled";
+      document.getElementById('sheetPrioritySelect').value = p.priority || "B - Develop";
+      document.getElementById('sheetStatusSelect').value = p.status || "New";
+      document.getElementById('sheetMarketInput').value = p.market || "";
+      document.getElementById('sheetBudgetInput').value = p.clientBudget || p.budget || "";
+      document.getElementById('sheetReqsInput').value = p.activeRequirements ?? p.requirements ?? 0;
+      document.getElementById('sheetLastTouchInput').value = p.lastTouch || "";
+      document.getElementById('sheetNextDateInput').value = p.nextDate || "";
+      document.getElementById('sheetNextActionInput').value = p.nextAction || "";
+      document.getElementById('sheetTargetPlanInput').value = p.targetPlan || "";
+      document.getElementById('sheetNotesInput').value = p.notes || "";
 
       // WhatsApp Button
       document.getElementById('sheetWhatsAppBtn').onclick = () => {
@@ -1912,6 +1998,43 @@
       `).join('') : '<p class="text-xs text-slate-500 py-3 text-center">No recorded activity history.</p>';
 
       openModal('cpDetailModal');
+    }
+
+    function saveCPDetailProfile(e) {
+      e.preventDefault();
+      if (!selectedCPForSheet) return;
+      const p = DB.partners.find(item => item.id === selectedCPForSheet.id);
+      if (!p) return;
+
+      p.reraName = document.getElementById('sheetReraInput').value.trim();
+      p.name = document.getElementById('sheetContactInput').value.trim();
+      p.company = document.getElementById('sheetCompanyInput').value.trim() || p.reraName;
+      p.phone = document.getElementById('sheetPhoneInput').value.trim();
+      p.owner = document.getElementById('sheetOwnerSelect').value;
+      p.priority = document.getElementById('sheetPrioritySelect').value;
+      p.status = document.getElementById('sheetStatusSelect').value;
+      p.market = document.getElementById('sheetMarketInput').value.trim();
+      p.clientBudget = document.getElementById('sheetBudgetInput').value.trim();
+      p.budget = p.clientBudget;
+      p.activeRequirements = Math.max(0, parseInt(document.getElementById('sheetReqsInput').value, 10) || 0);
+      p.requirements = p.activeRequirements;
+      p.lastTouch = document.getElementById('sheetLastTouchInput').value;
+      p.nextDate = document.getElementById('sheetNextDateInput').value;
+      p.nextAction = document.getElementById('sheetNextActionInput').value.trim();
+      p.targetPlan = document.getElementById('sheetTargetPlanInput').value.trim();
+      p.notes = document.getElementById('sheetNotesInput').value.trim();
+
+      document.getElementById('sheetCpName').innerText = p.reraName || p.company || p.name;
+      document.getElementById('sheetCpCompany').innerText = `Contact Person: ${p.name} (Owner: ${p.owner || 'Unassigned'})`;
+
+      saveDB();
+      renderCurrentView();
+
+      const notice = document.getElementById('sheetSavedNotice');
+      if (notice) {
+        notice.classList.remove('hidden');
+        setTimeout(() => notice.classList.add('hidden'), 3000);
+      }
     }
 
     // Quick Actions
