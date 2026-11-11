@@ -4,8 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pranay CP Intelligence Suite - Standalone Luxury Edition</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+      if (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1" && !window.location.hostname.includes("run.app")) {
+        var tw = document.createElement("script");
+        tw.src = "https://cdn.tailwindcss.com";
+        document.head.appendChild(tw);
+      }
+    </script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1054,17 +1060,7 @@
   </div>
 
     </div>
-  <script>
-    window.__REACT_MOUNTED__ = false;
-    window.addEventListener("DOMContentLoaded", function() {
-      if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname.includes("run.app")) {
-        var s = document.createElement("script");
-        s.type = "module";
-        s.src = "/src/main.tsx";
-        document.body.appendChild(s);
-      }
-    });
-  </script>
+  <script type="module" src="/src/main.tsx"></script>
   <!-- CORE STANDALONE LOGIC -->
   <script>
     // Initial Seed Data (Identical to Production React Suite)
@@ -2505,22 +2501,8 @@
       URL.revokeObjectURL(url);
     }
 
-    // Scrub any injected browser extension tags or text nodes (e.g. <__hrp__ data-ext-id="...">)
-    function scrubExtensionArtifacts() {
-      document.querySelectorAll('__hrp__, [data-ext-id]').forEach(el => el.remove());
-      [document.documentElement, document.body].forEach(root => {
-        if (!root) return;
-        Array.from(root.childNodes).forEach(node => {
-          if (node.nodeType === 3 && node.textContent && (node.textContent.includes('__hrp__') || node.textContent.includes('data-ext-id'))) {
-            node.remove();
-          }
-        });
-      });
-    }
-
     // Direct Download of Clean Standalone HTML File (Stripping any browser extension artifacts)
     function downloadThisHTML() {
-      scrubExtensionArtifacts();
       const clone = document.documentElement.cloneNode(true);
       clone.querySelectorAll('__hrp__, [data-ext-id], script[src^="chrome-extension://"]').forEach(el => el.remove());
       // Ensure the downloaded HTML always starts with the mandatory PIN gate locked
@@ -2542,10 +2524,7 @@
 
     // Boot App
     document.addEventListener("DOMContentLoaded", () => {
-      scrubExtensionArtifacts();
-      const obs = new MutationObserver(() => scrubExtensionArtifacts());
-      obs.observe(document.documentElement, { childList: true, subtree: true });
-
+      if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname.includes("run.app")) return;
       syncOwnerDropdowns();
       renderCommandCentre();
       const pinInput = document.getElementById('userPinInput');
