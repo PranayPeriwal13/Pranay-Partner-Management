@@ -324,12 +324,15 @@
 
     <!-- VIEW 4: Action Queue -->
     <div id="view-actions" class="view-panel hidden space-y-6">
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 class="text-xl font-bold text-slate-100">Consolidated Action Queue</h2>
           <p class="text-xs text-slate-400">Every open CP must have a committed next action and follow-up date</p>
         </div>
-        <button onclick="openModal('addCPModal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400">+ Add Partner</button>
+        <div class="flex items-center space-x-2 flex-wrap">
+          <button id="btnBulkDeleteUpcomingTop" onclick="bulkDeleteUpcomingCommitments()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white hover:bg-rose-400 shadow-sm">Bulk Delete Upcoming Commitments</button>
+          <button onclick="openModal('addCPModal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400">+ Add Partner</button>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -359,12 +362,16 @@
 
         <!-- Upcoming (Slate) -->
         <div class="space-y-3">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-700">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-              <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+          <div class="flex items-center justify-between pb-2 border-b border-slate-700 gap-2">
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" id="selectAllUpcomingCheckbox" onchange="toggleSelectAllUpcoming(this.checked)" class="rounded border-slate-600 bg-slate-900 text-amber-400 focus:ring-0 cursor-pointer" title="Select all Upcoming Commitments">
+              <span class="w-2 h-2 rounded-full bg-sky-400"></span>
               <span>Upcoming Commitments</span>
-            </span>
-            <span id="queueUpcomingCount" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">0</span>
+            </label>
+            <div class="flex items-center space-x-2">
+              <button id="btnBulkDeleteUpcomingCol" onclick="bulkDeleteUpcomingCommitments()" class="px-2 py-0.5 rounded bg-rose-500 hover:bg-rose-400 text-white text-[10px] font-bold shadow-sm transition-colors">Bulk Delete</button>
+              <span id="queueUpcomingCount" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">0</span>
+            </div>
           </div>
           <div id="queueUpcomingList" class="space-y-3"></div>
         </div>
@@ -1775,7 +1782,7 @@
       }
     }
 
-    // Render Action Queue (RERA Name Highlighted First, Contact Name Second)
+    // Render Action Queue (RERA Name Highlighted First, Contact Name Second + Bulk Delete Upcoming Commitments)
     function renderActions() {
       const today = new Date().toISOString().split('T')[0];
       const overdue = DB.partners.filter(p => p.nextDate && p.nextDate < today);
@@ -1786,29 +1793,93 @@
       document.getElementById('queueTodayCount').innerText = dueToday.length;
       document.getElementById('queueUpcomingCount').innerText = upcoming.length;
 
-      const renderCard = (p, isOverdue) => `
+      const topBtn = document.getElementById('btnBulkDeleteUpcomingTop');
+      const colBtn = document.getElementById('btnBulkDeleteUpcomingCol');
+      const selAll = document.getElementById('selectAllUpcomingCheckbox');
+      if (topBtn) topBtn.innerText = `Bulk Delete Upcoming Commitments (${upcoming.length})`;
+      if (colBtn) colBtn.innerText = `Bulk Delete (${upcoming.length})`;
+      if (selAll) selAll.checked = false;
+
+      const renderCard = (p, isOverdue, isUpcoming) => `
         <div class="glass-card rounded-xl p-3.5 space-y-2">
           <div class="flex items-start justify-between gap-2">
-            <div>
-              <div class="font-bold text-amber-300 text-xs">${p.reraName || p.company || p.name}</div>
-              <div class="text-[11px] text-slate-300 mt-0.5">Contact: <span class="text-white font-semibold">${p.name}</span></div>
+            <div class="flex items-start space-x-2">
+              ${isUpcoming ? `<input type="checkbox" value="${p.id}" onchange="updateUpcomingBulkButtonLabel()" class="upcoming-commit-checkbox mt-0.5 rounded border-slate-600 bg-slate-900 text-amber-400 focus:ring-0 cursor-pointer">` : ''}
+              <div>
+                <div class="font-bold text-amber-300 text-xs">${p.reraName || p.company || p.name}</div>
+                <div class="text-[11px] text-slate-300 mt-0.5">Contact: <span class="text-white font-semibold">${p.name}</span></div>
+              </div>
             </div>
             <span class="text-[10px] font-mono px-2 py-0.5 rounded shrink-0 ${isOverdue ? 'bg-rose-500/10 text-rose-400' : 'bg-slate-800 text-slate-300'}">${p.nextDate}</span>
           </div>
           <p class="text-xs text-slate-200 font-medium">Next: ${p.nextAction}</p>
           <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 text-[11px] text-slate-400">
             <span>Owner: <strong class="text-slate-200">${p.owner}</strong></span>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-1.5">
               <button onclick="openCPDetail('${p.id}')" class="px-2 py-0.5 rounded bg-sky-400 text-slate-950 font-bold text-xs hover:bg-sky-300">Review</button>
-              <button onclick="quickCompleteAction('${p.id}')" class="px-2.5 py-0.5 rounded bg-amber-400 text-slate-950 font-bold text-xs hover:bg-amber-300">Done</button>
+              <button onclick="quickCompleteAction('${p.id}')" class="px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-bold text-xs hover:bg-amber-300">Done</button>
+              <button onclick="deleteSingleCommitment('${p.id}')" class="px-2 py-0.5 rounded bg-rose-500 text-white font-bold text-xs hover:bg-rose-400" title="Delete Commitment">Delete</button>
             </div>
           </div>
         </div>
       `;
 
-      document.getElementById('queueOverdueList').innerHTML = overdue.map(p => renderCard(p, true)).join('') || '<p class="text-xs text-slate-500 py-4 text-center">No overdue follow-ups.</p>';
-      document.getElementById('queueTodayList').innerHTML = dueToday.map(p => renderCard(p, false)).join('') || '<p class="text-xs text-slate-500 py-4 text-center">No follow-ups due today.</p>';
-      document.getElementById('queueUpcomingList').innerHTML = upcoming.map(p => renderCard(p, false)).join('') || '<p class="text-xs text-slate-500 py-4 text-center">No upcoming follow-ups.</p>';
+      document.getElementById('queueOverdueList').innerHTML = overdue.map(p => renderCard(p, true, false)).join('') || '<p class="text-xs text-slate-500 py-4 text-center">No overdue follow-ups.</p>';
+      document.getElementById('queueTodayList').innerHTML = dueToday.map(p => renderCard(p, false, false)).join('') || '<p class="text-xs text-slate-500 py-4 text-center">No follow-ups due today.</p>';
+      document.getElementById('queueUpcomingList').innerHTML = upcoming.map(p => renderCard(p, false, true)).join('') || '<p class="text-xs text-slate-500 py-4 text-center">No upcoming follow-ups.</p>';
+    }
+
+    function toggleSelectAllUpcoming(checked) {
+      document.querySelectorAll('.upcoming-commit-checkbox').forEach(cb => {
+        cb.checked = checked;
+      });
+      updateUpcomingBulkButtonLabel();
+    }
+
+    function updateUpcomingBulkButtonLabel() {
+      const today = new Date().toISOString().split('T')[0];
+      const upcoming = DB.partners.filter(p => p.nextDate && p.nextDate > today);
+      const checkedIds = Array.from(document.querySelectorAll('.upcoming-commit-checkbox:checked')).map(cb => cb.value);
+      const count = checkedIds.length > 0 ? checkedIds.length : upcoming.length;
+      const topBtn = document.getElementById('btnBulkDeleteUpcomingTop');
+      const colBtn = document.getElementById('btnBulkDeleteUpcomingCol');
+      if (topBtn) topBtn.innerText = `Bulk Delete Upcoming Commitments (${count})`;
+      if (colBtn) colBtn.innerText = `Bulk Delete (${count})`;
+    }
+
+    function bulkDeleteUpcomingCommitments() {
+      const today = new Date().toISOString().split('T')[0];
+      const upcoming = DB.partners.filter(p => p.nextDate && p.nextDate > today);
+      if (upcoming.length === 0) return;
+
+      const checkedIds = Array.from(document.querySelectorAll('.upcoming-commit-checkbox:checked')).map(cb => cb.value);
+      const targetIds = checkedIds.length > 0 ? checkedIds : upcoming.map(p => p.id);
+      const label = checkedIds.length > 0
+        ? `${targetIds.length} selected Upcoming Commitment(s)`
+        : `all ${targetIds.length} Upcoming Commitment(s)`;
+
+      if (confirm(`Bulk delete ${label} from the Action Queue?`)) {
+        const idSet = new Set(targetIds);
+        DB.partners.forEach(p => {
+          if (idSet.has(p.id)) {
+            p.nextDate = "";
+            p.nextAction = "";
+          }
+        });
+        saveDB();
+        renderCurrentView();
+      }
+    }
+
+    function deleteSingleCommitment(partnerId) {
+      const p = DB.partners.find(item => item.id === partnerId);
+      if (!p) return;
+      if (confirm(`Delete commitment for "${p.reraName || p.company || p.name}" from Action Queue?`)) {
+        p.nextDate = "";
+        p.nextAction = "";
+        saveDB();
+        renderCurrentView();
+      }
     }
 
     const DEFAULT_TARGETS = {
