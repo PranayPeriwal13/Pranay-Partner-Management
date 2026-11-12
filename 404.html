@@ -123,6 +123,7 @@
         <button onclick="switchTab('directory')" id="tab-directory" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-200 bg-slate-800/80 hover:bg-slate-700 transition-colors">CP Directory</button>
         <button onclick="switchTab('pipeline')" id="tab-pipeline" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-200 bg-slate-800/80 hover:bg-slate-700 transition-colors">Deal Pipeline</button>
         <button onclick="switchTab('actions')" id="tab-actions" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-200 bg-slate-800/80 hover:bg-slate-700 transition-colors">Action Queue</button>
+        <button onclick="switchTab('scheduled')" id="tab-scheduled" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-200 bg-slate-800/80 hover:bg-slate-700 transition-colors">Scheduled Meetings</button>
         <button onclick="switchTab('team')" id="tab-team" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-200 bg-slate-800/80 hover:bg-slate-700 transition-colors">Team & Targets</button>
         <button onclick="switchTab('meetings')" id="tab-meetings" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-200 bg-slate-800/80 hover:bg-slate-700 transition-colors">Meetings Register</button>
         <button onclick="switchTab('excel')" id="tab-excel" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-200 bg-slate-800/80 hover:bg-slate-700 transition-colors">Excel Studio</button>
@@ -333,6 +334,7 @@
           <p class="text-xs text-slate-400">Every open CP must have a committed next action and follow-up date</p>
         </div>
         <div class="flex items-center space-x-2 flex-wrap">
+          <button onclick="switchTab('scheduled')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-cyan-400 text-slate-950 hover:bg-cyan-300 shadow-sm">+ Schedule Meeting</button>
           <button id="btnBulkDeleteUpcomingTop" onclick="bulkDeleteUpcomingCommitments()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white hover:bg-rose-400 shadow-sm">Bulk Delete Upcoming Commitments</button>
           <button onclick="openModal('addCPModal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400">+ Add Partner</button>
         </div>
@@ -378,6 +380,140 @@
           </div>
           <div id="queueUpcomingList" class="space-y-3"></div>
         </div>
+      </div>
+    </div>
+
+    <!-- VIEW 4B: Scheduled Meetings with Channel Partner -->
+    <div id="view-scheduled" class="view-panel hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Scheduled Meetings with Channel Partners</h2>
+          <p class="text-xs text-slate-400">Search any Channel Partner by Contact Person or Company Name, view previous entries, and schedule meetings that automatically reflect in your Action Queue</p>
+        </div>
+        <button onclick="switchTab('actions')" class="px-4 py-2 rounded-xl bg-amber-400 text-slate-950 font-bold text-xs hover:bg-amber-300 shadow-sm">
+          View in Action Queue →
+        </button>
+      </div>
+
+      <!-- Summary KPI Row -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="schedKpiGrid"></div>
+
+      <!-- Schedule New Meeting Card (Same Search & Previous Entries as Log Activity) -->
+      <div class="glass-card rounded-2xl p-6 space-y-4 border border-slate-800">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-sm font-bold text-slate-100">+ Schedule New Meeting with Channel Partner</h3>
+            <p class="text-[11px] text-slate-400">Search by Contact Person Name or Company / RERA Name · Auto-match & view previous entries</p>
+          </div>
+        </div>
+
+        <div id="schedSavedBanner" class="hidden p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs items-center justify-between gap-2">
+          <span id="schedSavedBannerText" class="font-semibold">Meeting scheduled and synced to Action Queue!</span>
+          <button type="button" onclick="switchTab('actions')" class="px-3 py-1 rounded-lg bg-emerald-400 text-slate-950 font-bold text-[11px] hover:bg-emerald-300 shrink-0">Open Action Queue →</button>
+        </div>
+
+        <form onsubmit="handleScheduleMeetingStandalone(event)" class="space-y-4 text-xs">
+          <input type="hidden" id="schedPartnerId" value="">
+
+          <div class="space-y-2.5">
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Search by Contact Person Name OR Company / RERA Name *</label>
+              <div class="relative">
+                <input
+                  type="text"
+                  id="schedPartnerSearchInput"
+                  oninput="handleSchedPartnerSearch(this.value)"
+                  placeholder="Type Contact Person Name (e.g. Rajesh) or Company Name (e.g. Luxury Realty)..."
+                  autocomplete="off"
+                  class="w-full bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-xl pl-3.5 pr-16 py-2.5 text-white focus:outline-none"
+                >
+                <button
+                  type="button"
+                  onclick="clearSchedPartnerSearch()"
+                  class="absolute right-2.5 top-2 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 font-semibold"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <!-- Matching Search Results (Shown ONLY when typing) -->
+            <div id="schedPartnerSearchResults" class="hidden bg-slate-950 border border-amber-500/30 rounded-xl overflow-hidden shadow-lg"></div>
+
+            <!-- Auto-Populated Company Name & Contact Person Name Fields -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-amber-400 font-bold mb-1">Company / RERA Name (Auto-Filled)</label>
+                <div id="schedAutoCompanyBox" class="px-3 py-2 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-500 italic text-xs">
+                  Auto-fills when searching Contact or Company...
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-emerald-400 font-bold mb-1">Contact Person Name (Auto-Filled)</label>
+                <div id="schedAutoContactBox" class="px-3 py-2 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-500 italic text-xs">
+                  Auto-fills when searching Contact or Company...
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-slate-400 mb-1">Meeting Date *</label>
+              <input type="date" id="schedDate" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 font-mono focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Meeting Time *</label>
+              <input type="text" id="schedTime" required value="11:30 AM" placeholder="e.g. 11:30 AM or 04:00 PM" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Meeting Format *</label>
+              <select id="schedMode" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+                <option value="In-Person Office">In-Person Broker Office</option>
+                <option value="Site Walkthrough">Site Walkthrough / Experience Centre</option>
+                <option value="Client Joint Meeting">Client Joint Meeting</option>
+                <option value="Project Presentation">Project Presentation</option>
+                <option value="Video / Call">Video / Phone Call</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-slate-400 mb-1">Location / Venue</label>
+              <input type="text" id="schedLocation" placeholder="e.g. Golf Course Road Lounge" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-slate-400 mb-1">Meeting Agenda & Next Action (Reflected in Action Queue) *</label>
+              <input type="text" id="schedAgenda" required value="Present luxury inventory & review active HNI client requirements" placeholder="e.g. Present 4BHK penthouse deck & line up weekend HNI walkthrough" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end pt-2">
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-400 text-slate-950 font-bold hover:bg-amber-300 shadow-sm">
+              Schedule Meeting & Sync to Action Queue
+            </button>
+          </div>
+
+          <!-- Previous Logged Entries for Selected CP -->
+          <div class="pt-3 border-t border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span id="schedPreviousEntriesTitle" class="text-xs font-bold text-amber-300">Previous Logged Entries</span>
+              <span id="schedPreviousEntriesCount" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono text-[10px]">0 entries</span>
+            </div>
+            <div id="schedPreviousEntriesList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+              <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-400 text-center text-[11px]">
+                Search by Contact Person Name or Company Name above to view previous interaction entries.
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Scheduled Meetings List -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold text-slate-200">Active & Completed Scheduled Meetings</h3>
+        <div id="scheduledMeetingsListContainer" class="space-y-3"></div>
       </div>
     </div>
 
@@ -1544,6 +1680,7 @@
       else if (activeTab === "directory") renderDirectory();
       else if (activeTab === "pipeline") renderPipeline();
       else if (activeTab === "actions") renderActions();
+      else if (activeTab === "scheduled") renderScheduledMeetings();
       else if (activeTab === "team") renderTeam();
       else if (activeTab === "meetings") renderMeetings();
       else if (activeTab === "excel") renderExcelStudio();
@@ -1973,13 +2110,18 @@
       if (colBtn) colBtn.innerText = `Bulk Delete (${upcoming.length})`;
       if (selAll) selAll.checked = false;
 
-      const renderCard = (p, isOverdue, isUpcoming) => `
-        <div class="glass-card rounded-xl p-3.5 space-y-2">
+      const renderCard = (p, isOverdue, isUpcoming) => {
+        const isSchedMtg = p.status === "Meeting Scheduled" || (p.nextAction && p.nextAction.toLowerCase().includes("scheduled meeting"));
+        return `
+        <div class="glass-card rounded-xl p-3.5 space-y-2 ${isSchedMtg ? 'border-cyan-500/30' : ''}">
           <div class="flex items-start justify-between gap-2">
             <div class="flex items-start space-x-2">
               ${isUpcoming ? `<input type="checkbox" value="${p.id}" onchange="updateUpcomingBulkButtonLabel()" class="upcoming-commit-checkbox mt-0.5 rounded border-slate-600 bg-slate-900 text-amber-400 focus:ring-0 cursor-pointer">` : ''}
               <div>
-                <div class="font-bold text-amber-300 text-xs">${p.reraName || p.company || p.name}</div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-bold text-amber-300 text-xs">${p.reraName || p.company || p.name}</span>
+                  ${isSchedMtg ? `<span class="px-1.5 py-0.5 rounded bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-[9px] font-bold">📅 Scheduled Meeting</span>` : ''}
+                </div>
                 <div class="text-[11px] text-slate-300 mt-0.5">Contact: <span class="text-white font-semibold">${p.name}</span></div>
               </div>
             </div>
@@ -1996,10 +2138,329 @@
           </div>
         </div>
       `;
+      };
 
       document.getElementById('queueOverdueList').innerHTML = overdue.map(p => renderCard(p, true, false)).join('') || '<p class="text-xs text-slate-500 py-4 text-center">No overdue follow-ups.</p>';
       document.getElementById('queueTodayList').innerHTML = dueToday.map(p => renderCard(p, false, false)).join('') || '<p class="text-xs text-slate-500 py-4 text-center">No follow-ups due today.</p>';
       document.getElementById('queueUpcomingList').innerHTML = upcoming.map(p => renderCard(p, false, true)).join('') || '<p class="text-xs text-slate-500 py-4 text-center">No upcoming follow-ups.</p>';
+    }
+
+    // Scheduled Meetings Tab Functions (Same Partner Search & Previous Entries as Log Activity + Action Queue Sync)
+    function clearSchedPartnerSearch() {
+      const searchInput = document.getElementById('schedPartnerSearchInput');
+      if (searchInput) searchInput.value = "";
+      const pidInput = document.getElementById('schedPartnerId');
+      if (pidInput) pidInput.value = "";
+      const resBox = document.getElementById('schedPartnerSearchResults');
+      if (resBox) {
+        resBox.innerHTML = "";
+        resBox.classList.add('hidden');
+      }
+      updateSchedPartnerSelectionUI(null);
+    }
+
+    function updateSchedPartnerSelectionUI(p) {
+      const compBox = document.getElementById('schedAutoCompanyBox');
+      const contBox = document.getElementById('schedAutoContactBox');
+      const pidInput = document.getElementById('schedPartnerId');
+      const titleEl = document.getElementById('schedPreviousEntriesTitle');
+      const countEl = document.getElementById('schedPreviousEntriesCount');
+      const listEl = document.getElementById('schedPreviousEntriesList');
+
+      if (!p) {
+        if (pidInput) pidInput.value = "";
+        if (compBox) {
+          compBox.className = "px-3 py-2 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-500 italic text-xs";
+          compBox.innerText = "Auto-fills when searching Contact or Company...";
+        }
+        if (contBox) {
+          contBox.className = "px-3 py-2 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-500 italic text-xs";
+          contBox.innerText = "Auto-fills when searching Contact or Company...";
+        }
+        if (titleEl) titleEl.innerText = "Previous Logged Entries";
+        if (countEl) countEl.innerText = "0 entries";
+        if (listEl) {
+          listEl.innerHTML = `<div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-400 text-center text-[11px]">Search by Contact Person Name or Company Name above to view previous interaction entries.</div>`;
+        }
+        return;
+      }
+
+      if (pidInput) pidInput.value = p.id;
+      if (compBox) {
+        compBox.className = "px-3 py-2 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-300 font-bold text-xs";
+        compBox.innerText = p.reraName || p.company || p.name;
+      }
+      if (contBox) {
+        contBox.className = "px-3 py-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 font-bold text-xs";
+        contBox.innerText = `${p.name}${p.phone ? ' (' + p.phone + ')' : ''} · Owner: ${p.owner || 'Unassigned'}`;
+      }
+      const locInput = document.getElementById('schedLocation');
+      if (locInput && !locInput.value && p.market) locInput.value = p.market;
+
+      const history = DB.activities.filter(a => a.partnerId === p.id);
+      if (titleEl) titleEl.innerText = `Previous Logged Entries — ${p.reraName || p.company || p.name} (${p.name})`;
+      if (countEl) countEl.innerText = `${history.length} ${history.length === 1 ? 'entry' : 'entries'}`;
+      if (listEl) {
+        const entriesHtml = history.map(h => `
+          <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
+            <div class="flex items-center justify-between text-[10px] font-mono">
+              <span class="text-amber-300 font-bold">${h.date} · ${h.type}</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-semibold">${h.outcome}</span>
+            </div>
+            <p class="text-slate-200 text-xs">${h.notes}</p>
+          </div>
+        `).join('');
+        const profileNoteHtml = p.notes ? `
+          <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
+            <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span class="text-cyan-300 font-bold">Partner Profile Note / Last Touch (${p.lastTouch || '—'})</span>
+              <span>Owner: ${p.owner || 'Unassigned'}</span>
+            </div>
+            <p class="text-slate-300 text-xs">${p.notes}</p>
+          </div>
+        ` : '';
+        listEl.innerHTML = (entriesHtml + profileNoteHtml) || `<div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-400 text-center text-[11px]">No previous logged interactions for this partner yet.</div>`;
+      }
+    }
+
+    function selectSchedPartner(partnerId) {
+      const p = DB.partners.find(item => item.id === partnerId);
+      if (!p) return;
+      const searchInput = document.getElementById('schedPartnerSearchInput');
+      if (searchInput) searchInput.value = `${p.reraName || p.company || p.name} — ${p.name}`;
+      const resBox = document.getElementById('schedPartnerSearchResults');
+      if (resBox) resBox.classList.add('hidden');
+      updateSchedPartnerSelectionUI(p);
+    }
+
+    function handleSchedPartnerSearch(val) {
+      const resBox = document.getElementById('schedPartnerSearchResults');
+      const q = (val || "").toLowerCase().trim();
+      if (!q) {
+        if (resBox) {
+          resBox.innerHTML = "";
+          resBox.classList.add('hidden');
+        }
+        updateSchedPartnerSelectionUI(null);
+        return;
+      }
+
+      const hits = DB.partners.filter(p => {
+        const contact = (p.name || "").toLowerCase();
+        const rera = (p.reraName || p.company || "").toLowerCase();
+        const comp = (p.company || "").toLowerCase();
+        const phone = (p.phone || "").toLowerCase();
+        return contact.includes(q) || rera.includes(q) || comp.includes(q) || phone.includes(q);
+      }).slice(0, 10);
+
+      const exactMatch = hits.find(p =>
+        (p.name || "").toLowerCase() === q ||
+        (p.reraName || "").toLowerCase() === q ||
+        (p.company || "").toLowerCase() === q
+      );
+      const autoTarget = exactMatch || (hits.length === 1 ? hits[0] : null);
+      updateSchedPartnerSelectionUI(autoTarget || null);
+
+      if (resBox) {
+        resBox.classList.remove('hidden');
+        if (hits.length === 0) {
+          resBox.innerHTML = `<div class="p-3 text-rose-300 text-xs bg-rose-500/10">No Channel Partner found matching "${val}".</div>`;
+        } else {
+          resBox.innerHTML = `
+            <div class="px-3 py-1.5 bg-amber-500/10 border-b border-slate-800 flex items-center justify-between text-[10px] text-amber-300 font-bold uppercase tracking-wider">
+              <span>Matching Results (${hits.length}) — Click to select</span>
+              <span>Contact ↔ Company Auto-Match</span>
+            </div>
+            <div class="max-h-44 overflow-y-auto divide-y divide-slate-800/80">
+              ${hits.map(cp => `
+                <button type="button" onclick="selectSchedPartner('${cp.id}')" class="w-full text-left px-3 py-2.5 hover:bg-slate-900 transition-colors flex items-center justify-between gap-2">
+                  <div>
+                    <div class="font-bold text-amber-300 text-xs">${cp.reraName || cp.company || cp.name}</div>
+                    <div class="text-[11px] text-slate-200 mt-0.5">Contact Person: <strong class="text-white">${cp.name}</strong> · Phone: <span class="font-mono text-slate-400">${cp.phone || '—'}</span></div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-emerald-300 shrink-0">${cp.owner || 'Unassigned'}</span>
+                </button>
+              `).join('')}
+            </div>
+          `;
+        }
+      }
+    }
+
+    function getAllScheduledMeetingsStandalone() {
+      if (!Array.isArray(DB.scheduledMeetings)) DB.scheduledMeetings = [];
+      const explicitIds = new Set(DB.scheduledMeetings.filter(m => m.status === "Scheduled").map(m => m.cpId));
+      const derived = DB.partners
+        .filter(p => !explicitIds.has(p.id) && p.nextDate && (p.status === "Meeting Scheduled" || (p.nextAction && p.nextAction.toLowerCase().includes("meeting"))))
+        .map(p => ({
+          id: "derived-" + p.id,
+          cpId: p.id,
+          cpName: p.name,
+          reraName: p.reraName || p.company,
+          phone: p.phone,
+          owner: p.owner || "Unassigned",
+          date: p.nextDate,
+          time: "11:30 AM",
+          mode: "In-Person Office",
+          location: p.market || "",
+          agenda: p.nextAction || "Scheduled Broker Meeting",
+          status: "Scheduled"
+        }));
+      return [...DB.scheduledMeetings.filter(m => m.status !== "Cancelled"), ...derived];
+    }
+
+    function renderScheduledMeetings() {
+      const dateInput = document.getElementById('schedDate');
+      if (dateInput && !dateInput.value) {
+        dateInput.value = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      }
+      const today = new Date().toISOString().split('T')[0];
+      const all = getAllScheduledMeetingsStandalone();
+      const active = all.filter(m => m.status === "Scheduled");
+      const todayList = active.filter(m => m.date === today);
+      const upcomingList = active.filter(m => m.date > today);
+      const overdueList = active.filter(m => m.date < today);
+      const completedList = all.filter(m => m.status === "Completed");
+
+      const kpiEl = document.getElementById('schedKpiGrid');
+      if (kpiEl) {
+        kpiEl.innerHTML = `
+          <div class="glass-card rounded-xl p-4"><div class="text-xs text-amber-400 font-bold">Meetings Today</div><div class="text-2xl font-bold font-mono text-amber-400 mt-1">${todayList.length}</div><div class="text-[11px] text-slate-400">Reflected in Due Today Queue</div></div>
+          <div class="glass-card rounded-xl p-4"><div class="text-xs text-sky-400 font-bold">Upcoming Meetings</div><div class="text-2xl font-bold font-mono text-white mt-1">${upcomingList.length}</div><div class="text-[11px] text-slate-400">Reflected in Upcoming Queue</div></div>
+          <div class="glass-card rounded-xl p-4"><div class="text-xs text-rose-400 font-bold">Overdue Meetings</div><div class="text-2xl font-bold font-mono text-rose-400 mt-1">${overdueList.length}</div><div class="text-[11px] text-slate-400">Needs outcome or reschedule</div></div>
+          <div class="glass-card rounded-xl p-4"><div class="text-xs text-emerald-400 font-bold">Completed Meetings</div><div class="text-2xl font-bold font-mono text-emerald-400 mt-1">${completedList.length}</div><div class="text-[11px] text-slate-400">Logged in Meetings Register</div></div>
+        `;
+      }
+
+      const listEl = document.getElementById('scheduledMeetingsListContainer');
+      if (!listEl) return;
+      if (all.length === 0) {
+        listEl.innerHTML = `<div class="glass-card rounded-2xl p-8 text-center text-xs text-slate-400">No scheduled meetings yet. Search a Channel Partner above to schedule a meeting and sync to Action Queue.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = all.map(m => {
+        const isCompleted = m.status === "Completed";
+        const isOverdue = !isCompleted && m.date < today;
+        const isToday = !isCompleted && m.date === today;
+        return `
+          <div class="glass-card rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isOverdue ? 'border-rose-500/40' : isToday ? 'border-amber-500/40' : ''}">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 font-mono text-[10px] font-bold">${m.date} · ${m.time || '11:30 AM'}</span>
+                <span class="px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 text-[10px] font-bold">${m.mode || 'Meeting'}</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 text-[10px] font-bold">✓ Synced with Action Queue</span>
+              </div>
+              <div class="font-bold text-amber-300 text-sm">${m.reraName || m.cpName} <span class="text-xs text-white font-semibold">· Contact: ${m.cpName}</span> <span class="text-xs text-slate-400">(Owner: ${m.owner})</span></div>
+              <p class="text-xs text-slate-200"><strong class="text-amber-400">Agenda:</strong> ${m.agenda}</p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              ${!isCompleted ? `<button onclick="completeScheduledMeetingStandalone('${m.id}', '${m.cpId}')" class="px-3 py-1.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs">Complete Meeting</button>` : `<span class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 text-xs font-bold">✓ Completed</span>`}
+              <button onclick="openCPDetail('${m.cpId}')" class="px-3 py-1.5 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-bold text-xs">Profile</button>
+              <button onclick="cancelScheduledMeetingStandalone('${m.id}', '${m.cpId}')" class="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs">Cancel</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleScheduleMeetingStandalone(e) {
+      e.preventDefault();
+      const cpId = document.getElementById('schedPartnerId').value;
+      const p = DB.partners.find(item => item.id === cpId);
+      if (!p) {
+        alert("Please search and select a Channel Partner by Contact Person Name or Company Name first.");
+        return;
+      }
+      const date = document.getElementById('schedDate').value;
+      const time = document.getElementById('schedTime').value.trim() || "11:30 AM";
+      const mode = document.getElementById('schedMode').value;
+      const location = document.getElementById('schedLocation').value.trim();
+      const agenda = document.getElementById('schedAgenda').value.trim();
+      const today = new Date().toISOString().split('T')[0];
+
+      const formattedAction = `[Scheduled Meeting · ${time} · ${mode}] ${agenda}${location ? ' @ ' + location : ''}`;
+      if (!Array.isArray(DB.scheduledMeetings)) DB.scheduledMeetings = [];
+
+      DB.scheduledMeetings.unshift({
+        id: "sch-" + Date.now(),
+        cpId: p.id,
+        cpName: p.name,
+        reraName: p.reraName || p.company,
+        phone: p.phone,
+        owner: p.owner || (currentUser ? currentUser.name : "Pranay"),
+        date,
+        time,
+        mode,
+        location,
+        agenda,
+        status: "Scheduled",
+        createdAt: today
+      });
+
+      p.status = p.status === "Converted" ? "Converted" : "Meeting Scheduled";
+      p.nextDate = date;
+      p.nextAction = formattedAction;
+      p.lastTouch = today;
+
+      DB.activities.unshift({
+        id: "act-" + Date.now(),
+        partnerId: p.id,
+        type: "Meeting",
+        outcome: "Meeting fixed",
+        date: today,
+        owner: p.owner || "Pranay",
+        notes: `Scheduled ${mode} for ${date} at ${time}: ${agenda}`,
+        nextFollowUp: date,
+        nextAction: formattedAction
+      });
+
+      saveDB();
+      renderScheduledMeetings();
+      updateSchedPartnerSelectionUI(p);
+
+      const banner = document.getElementById('schedSavedBanner');
+      const bannerText = document.getElementById('schedSavedBannerText');
+      if (bannerText) {
+        bannerText.innerText = `Scheduled ${mode} with ${p.reraName || p.company || p.name} (${p.name}) for ${date} at ${time} — reflected in Action Queue!`;
+      }
+      if (banner) {
+        banner.classList.remove('hidden');
+        banner.classList.add('flex');
+      }
+    }
+
+    function completeScheduledMeetingStandalone(meetingId, cpId) {
+      if (!Array.isArray(DB.scheduledMeetings)) DB.scheduledMeetings = [];
+      const today = new Date().toISOString().split('T')[0];
+      const nextDate = new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0];
+      DB.scheduledMeetings.forEach(m => {
+        if (m.id === meetingId) m.status = "Completed";
+      });
+      const p = DB.partners.find(item => item.id === cpId);
+      if (p) {
+        if (p.status !== "Converted") p.status = "Meeting Done";
+        p.lastTouch = today;
+        p.nextDate = nextDate;
+        p.nextAction = "Follow up on scheduled meeting discussion & share inventory";
+      }
+      saveDB();
+      renderCurrentView();
+    }
+
+    function cancelScheduledMeetingStandalone(meetingId, cpId) {
+      if (!confirm("Cancel this scheduled meeting and remove its commitment from the Action Queue?")) return;
+      if (Array.isArray(DB.scheduledMeetings)) {
+        DB.scheduledMeetings = DB.scheduledMeetings.filter(m => m.id !== meetingId);
+      }
+      const p = DB.partners.find(item => item.id === cpId);
+      if (p) {
+        if (p.status === "Meeting Scheduled") p.status = "Contacted";
+        p.nextDate = "";
+        p.nextAction = "";
+      }
+      saveDB();
+      renderCurrentView();
     }
 
     function toggleSelectAllUpcoming(checked) {
