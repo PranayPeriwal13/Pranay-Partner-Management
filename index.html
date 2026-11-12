@@ -1891,9 +1891,11 @@
             <td class="py-3 px-4 text-slate-300 max-w-xs truncate">${p.nextAction}</td>
             <td class="py-3 px-4 font-mono text-slate-400">${p.nextDate || 'Not set'}</td>
             <td class="py-3 px-4 text-right">
-              <div class="flex items-center justify-end space-x-1.5">
-                <button onclick="openCPDetail('${p.id}')" class="px-2.5 py-1 rounded bg-sky-400 text-slate-950 font-bold hover:bg-sky-300 text-xs">Profile</button>
-                <button onclick="deletePartner('${p.id}')" class="p-1.5 bg-rose-500 text-white hover:bg-rose-400 rounded-lg transition-colors" title="Delete Channel Partner">
+              <div class="flex items-center justify-end space-x-1.5 whitespace-nowrap">
+                <button type="button" onclick="openCPWhatsApp('${p.id}')" class="px-2.5 py-1 rounded bg-emerald-400 text-slate-950 font-bold hover:bg-emerald-300 text-xs shadow-sm" title="Chat on WhatsApp">WhatsApp</button>
+                <button type="button" onclick="openLogActivityForPartner('${p.id}')" class="px-2.5 py-1 rounded bg-amber-400 text-slate-950 font-bold hover:bg-amber-300 text-xs shadow-sm" title="Log Broker Interaction">Log</button>
+                <button type="button" onclick="openCPDetail('${p.id}')" class="px-2.5 py-1 rounded bg-sky-400 text-slate-950 font-bold hover:bg-sky-300 text-xs shadow-sm" title="Open & Edit Full Profile">Profile</button>
+                <button type="button" onclick="deletePartner('${p.id}')" class="p-1.5 bg-rose-500 text-white hover:bg-rose-400 rounded-lg transition-colors shadow-sm" title="Delete Channel Partner">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
               </div>
@@ -1901,6 +1903,20 @@
           </tr>
         `;
       }).join('');
+    }
+
+    function openCPWhatsApp(partnerId) {
+      const p = DB.partners.find(item => item.id === partnerId);
+      if (!p) return;
+      const cleanPhone = String(p.phone || "").replace(/\D/g, "").slice(-10);
+      const msg = encodeURIComponent(`Hi ${p.name} (${p.reraName || p.company || p.name}), connecting regarding our luxury portfolio updates and active client requirements.`);
+      const url = cleanPhone ? `https://wa.me/91${cleanPhone}?text=${msg}` : `https://wa.me/?text=${msg}`;
+      window.open(url, '_blank');
+    }
+
+    function openLogActivityForPartner(partnerId) {
+      openModal('logActivityModal');
+      selectLogPartner(partnerId);
     }
 
     function normalizeStandaloneStage(raw) {
