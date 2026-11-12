@@ -717,19 +717,67 @@
   </div>
 
   <!-- Log Activity Modal -->
-  <div id="logActivityModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="glass-card rounded-2xl w-full max-w-lg p-6 space-y-4 border border-slate-800">
+  <div id="logActivityModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="glass-card rounded-2xl w-full max-w-2xl p-6 space-y-4 border border-slate-800 max-h-[92vh] overflow-y-auto my-auto">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <h3 class="text-base font-bold text-slate-100">Log Broker Interaction</h3>
-        <button onclick="closeModal('logActivityModal')" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
-      </div>
-      <form onsubmit="handleSaveActivity(event)" class="space-y-4 text-xs">
         <div>
-          <label class="block text-slate-400 mb-1">Select Channel Partner (RERA Name → Contact) *</label>
-          <select id="logPartnerId" required class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
-            <!-- Options populated dynamically -->
-          </select>
+          <h3 class="text-base font-bold text-slate-100">Log Broker Interaction</h3>
+          <p class="text-[11px] text-slate-400">Search by Contact Person Name or Company Name · Auto-match & view previous entries</p>
         </div>
+        <button onclick="closeModal('logActivityModal')" class="px-2.5 py-1 rounded-lg bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs">✕</button>
+      </div>
+
+      <div id="logSavedBanner" class="hidden p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs items-center justify-between gap-2">
+        <span id="logSavedBannerText" class="font-semibold">Interaction logged! Added to Previous Entries below.</span>
+        <button type="button" onclick="closeModal('logActivityModal')" class="px-3 py-1 rounded-lg bg-emerald-400 text-slate-950 font-bold text-[11px] hover:bg-emerald-300 shrink-0">Done</button>
+      </div>
+
+      <form onsubmit="handleSaveActivity(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="logPartnerId" value="">
+
+        <!-- Search by Contact Person or Company Name (No Dropdown - Results Only) -->
+        <div class="space-y-2.5">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Search by Contact Person Name OR Company / RERA Name *</label>
+            <div class="relative">
+              <input
+                type="text"
+                id="logPartnerSearchInput"
+                oninput="handleLogPartnerSearch(this.value)"
+                placeholder="Type Contact Person Name (e.g. Rajesh) or Company Name (e.g. Luxury Realty)..."
+                autocomplete="off"
+                class="w-full bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-xl pl-3.5 pr-16 py-2.5 text-white focus:outline-none"
+              >
+              <button
+                type="button"
+                onclick="clearLogPartnerSearch()"
+                class="absolute right-2.5 top-2 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 font-semibold"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <!-- Matching Search Results Container (Shown ONLY when typing) -->
+          <div id="logPartnerSearchResults" class="hidden bg-slate-950 border border-amber-500/30 rounded-xl overflow-hidden shadow-lg"></div>
+
+          <!-- Auto-Populated Company Name & Contact Person Name Fields -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+            <div>
+              <label class="block text-[10px] uppercase tracking-wider text-amber-400 font-bold mb-1">Company / RERA Name (Auto-Filled)</label>
+              <div id="logAutoCompanyBox" class="px-3 py-2 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-500 italic text-xs">
+                Auto-fills when searching Contact or Company...
+              </div>
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase tracking-wider text-emerald-400 font-bold mb-1">Contact Person Name (Auto-Filled)</label>
+              <div id="logAutoContactBox" class="px-3 py-2 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-500 italic text-xs">
+                Auto-fills when searching Contact or Company...
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-slate-400 mb-1">Activity Type *</label>
@@ -738,6 +786,7 @@
               <option value="Site visit">Site visit</option>
               <option value="Client lead">Client lead</option>
               <option value="Client meeting">Client meeting</option>
+              <option value="Negotiation">Negotiation</option>
               <option value="Booking">Booking</option>
               <option value="Call">Call</option>
               <option value="WhatsApp">WhatsApp</option>
@@ -774,9 +823,22 @@
             <input type="text" id="logNextAction" required placeholder="e.g. Coordinate Saturday walkthrough" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none">
           </div>
         </div>
-        <div class="flex items-center justify-end space-x-2 pt-2">
-          <button type="button" onclick="closeModal('logActivityModal')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold">Cancel</button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">Save Log</button>
+        <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('logActivityModal')" class="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold">Close</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-400 text-slate-950 font-bold hover:bg-amber-300">Save Log</button>
+        </div>
+
+        <!-- Previous Logged Entries Section -->
+        <div class="pt-3 border-t border-slate-800 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span id="logPreviousEntriesTitle" class="text-xs font-bold text-amber-300">Previous Logged Entries</span>
+            <span id="logPreviousEntriesCount" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono text-[10px]">0 entries</span>
+          </div>
+          <div id="logPreviousEntriesList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+            <div class="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-400 text-center text-[11px]">
+              Search by Contact Person Name or Company Name above to view previous interaction entries.
+            </div>
+          </div>
         </div>
       </form>
     </div>
@@ -2158,8 +2220,12 @@
       }
 
       if (id === 'logActivityModal') {
-        const sel = document.getElementById('logPartnerId');
-        sel.innerHTML = DB.partners.map(p => `<option value="${p.id}">${p.reraName || p.company || p.name} — Contact: ${p.name} (Owner: ${p.owner})</option>`).join('');
+        clearLogPartnerSearch();
+        const banner = document.getElementById('logSavedBanner');
+        if (banner) {
+          banner.classList.add('hidden');
+          banner.classList.remove('flex');
+        }
         document.getElementById('logNextDate').value = new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0];
       }
 
@@ -2368,10 +2434,201 @@
       renderCurrentView();
     }
 
+    function clearLogPartnerSearch() {
+      const searchInput = document.getElementById('logPartnerSearchInput');
+      if (searchInput) searchInput.value = "";
+      const pidInput = document.getElementById('logPartnerId');
+      if (pidInput) pidInput.value = "";
+      const resBox = document.getElementById('logPartnerSearchResults');
+      if (resBox) {
+        resBox.innerHTML = "";
+        resBox.classList.add('hidden');
+      }
+      updateLogPartnerSelectionUI(null);
+    }
+
+    function updateLogPartnerSelectionUI(p) {
+      const compBox = document.getElementById('logAutoCompanyBox');
+      const contBox = document.getElementById('logAutoContactBox');
+      const pidInput = document.getElementById('logPartnerId');
+
+      if (!p) {
+        if (pidInput) pidInput.value = "";
+        if (compBox) {
+          compBox.className = "px-3 py-2 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-500 italic text-xs";
+          compBox.innerText = "Auto-fills when searching Contact or Company...";
+        }
+        if (contBox) {
+          contBox.className = "px-3 py-2 rounded-lg border border-slate-800 bg-slate-950/60 text-slate-500 italic text-xs";
+          contBox.innerText = "Auto-fills when searching Contact or Company...";
+        }
+        renderLogPreviousEntries(null);
+        return;
+      }
+
+      if (pidInput) pidInput.value = p.id;
+      if (compBox) {
+        compBox.className = "px-3 py-2 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-300 font-bold text-xs";
+        compBox.innerText = p.reraName || p.company || p.name;
+      }
+      if (contBox) {
+        contBox.className = "px-3 py-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 font-bold text-xs";
+        contBox.innerText = `${p.name}${p.phone ? ' (' + p.phone + ')' : ''} · Owner: ${p.owner || 'Unassigned'}`;
+      }
+      if (p.nextAction) {
+        const nextActInput = document.getElementById('logNextAction');
+        if (nextActInput && !nextActInput.value) nextActInput.value = p.nextAction;
+      }
+      renderLogPreviousEntries(p);
+    }
+
+    function selectLogPartner(partnerId) {
+      const p = DB.partners.find(item => item.id === partnerId);
+      if (!p) return;
+      const searchInput = document.getElementById('logPartnerSearchInput');
+      if (searchInput) {
+        searchInput.value = `${p.reraName || p.company || p.name} — ${p.name}`;
+      }
+      const resBox = document.getElementById('logPartnerSearchResults');
+      if (resBox) {
+        resBox.classList.add('hidden');
+      }
+      updateLogPartnerSelectionUI(p);
+    }
+
+    function handleLogPartnerSearch(val) {
+      const banner = document.getElementById('logSavedBanner');
+      if (banner) {
+        banner.classList.add('hidden');
+        banner.classList.remove('flex');
+      }
+      const resBox = document.getElementById('logPartnerSearchResults');
+      const q = (val || "").toLowerCase().trim();
+      if (!q) {
+        if (resBox) {
+          resBox.innerHTML = "";
+          resBox.classList.add('hidden');
+        }
+        updateLogPartnerSelectionUI(null);
+        return;
+      }
+
+      const hits = DB.partners.filter(p => {
+        const contact = (p.name || "").toLowerCase();
+        const rera = (p.reraName || p.company || "").toLowerCase();
+        const comp = (p.company || "").toLowerCase();
+        const phone = (p.phone || "").toLowerCase();
+        return contact.includes(q) || rera.includes(q) || comp.includes(q) || phone.includes(q);
+      }).slice(0, 10);
+
+      // Auto-select if exact match on Contact Person Name or Company/RERA Name, or single result
+      const exactMatch = hits.find(p =>
+        (p.name || "").toLowerCase() === q ||
+        (p.reraName || "").toLowerCase() === q ||
+        (p.company || "").toLowerCase() === q
+      );
+      const autoTarget = exactMatch || (hits.length === 1 ? hits[0] : null);
+      updateLogPartnerSelectionUI(autoTarget || null);
+
+      if (resBox) {
+        resBox.classList.remove('hidden');
+        if (hits.length === 0) {
+          resBox.innerHTML = `
+            <div class="p-3 text-rose-300 text-xs bg-rose-500/10">
+              No Channel Partner found matching "${val}". Try searching by Contact Person Name or Company / RERA Name.
+            </div>
+          `;
+        } else {
+          resBox.innerHTML = `
+            <div class="px-3 py-1.5 bg-amber-500/10 border-b border-slate-800 flex items-center justify-between text-[10px] text-amber-300 font-bold uppercase tracking-wider">
+              <span>Matching Results (${hits.length}) — Click to select</span>
+              <span>Contact ↔ Company Auto-Match</span>
+            </div>
+            <div class="max-h-44 overflow-y-auto divide-y divide-slate-800/80">
+              ${hits.map(cp => {
+                const isSelected = autoTarget && autoTarget.id === cp.id;
+                return `
+                  <button type="button" onclick="selectLogPartner('${cp.id}')" class="w-full text-left px-3 py-2.5 transition-colors flex items-center justify-between gap-2 ${isSelected ? 'bg-amber-500/15 border-l-2 border-amber-400' : 'hover:bg-slate-900'}">
+                    <div>
+                      <div class="font-bold text-amber-300 text-xs">${cp.reraName || cp.company || cp.name}</div>
+                      <div class="text-[11px] text-slate-200 mt-0.5">Contact Person: <strong class="text-white">${cp.name}</strong> · Phone: <span class="font-mono text-slate-400">${cp.phone || '—'}</span></div>
+                    </div>
+                    <span class="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-emerald-300 shrink-0">${cp.owner || 'Unassigned'}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          `;
+        }
+      }
+    }
+
+    function renderLogPreviousEntries(p) {
+      const titleEl = document.getElementById('logPreviousEntriesTitle');
+      const countEl = document.getElementById('logPreviousEntriesCount');
+      const listEl = document.getElementById('logPreviousEntriesList');
+      if (!listEl) return;
+
+      if (!p) {
+        if (titleEl) titleEl.innerText = "Previous Logged Entries";
+        if (countEl) countEl.innerText = "0 entries";
+        listEl.innerHTML = `
+          <div class="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-400 text-center text-[11px]">
+            Search by Contact Person Name or Company Name above to view previous interaction entries.
+          </div>
+        `;
+        return;
+      }
+
+      const history = DB.activities.filter(a => a.partnerId === p.id);
+      if (titleEl) titleEl.innerText = `Previous Logged Entries — ${p.reraName || p.company || p.name} (${p.name})`;
+      if (countEl) countEl.innerText = `${history.length} ${history.length === 1 ? 'entry' : 'entries'}`;
+
+      const entriesHtml = history.map(h => `
+        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+          <div class="flex items-center justify-between text-[10px] font-mono">
+            <span class="text-amber-300 font-bold">${h.date} · ${h.type}</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-semibold">${h.outcome}</span>
+          </div>
+          ${h.clientDetail ? `<div class="text-[11px] text-sky-300 font-medium">Client / Mandate: ${h.clientDetail}</div>` : ''}
+          <p class="text-slate-200 text-xs leading-relaxed">${h.notes}</p>
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-800/80 text-[10px] text-slate-400 font-mono">
+            <span>Next: ${h.nextAction || '—'} (${h.nextFollowUp || '—'})</span>
+            <span>Logged by: ${h.owner || p.owner || 'Team'}</span>
+          </div>
+        </div>
+      `).join('');
+
+      const profileNoteHtml = p.notes ? `
+        <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-1">
+          <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
+            <span class="text-cyan-300 font-bold">Partner Profile Note / Last Touch (${p.lastTouch || '—'})</span>
+            <span>Owner: ${p.owner || 'Unassigned'}</span>
+          </div>
+          <p class="text-slate-300 text-xs">${p.notes}</p>
+          ${p.nextAction ? `<div class="text-[10px] font-mono text-amber-300/90">Committed Next Step: ${p.nextAction} (${p.nextDate || '—'})</div>` : ''}
+        </div>
+      ` : '';
+
+      if (!entriesHtml && !profileNoteHtml) {
+        listEl.innerHTML = `
+          <div class="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-400 text-center text-[11px]">
+            No previous logged interactions for ${p.reraName || p.company || p.name} (${p.name}).
+          </div>
+        `;
+      } else {
+        listEl.innerHTML = entriesHtml + profileNoteHtml;
+      }
+    }
+
     function handleSaveActivity(e) {
       e.preventDefault();
       const pId = document.getElementById('logPartnerId').value;
       const p = DB.partners.find(item => item.id === pId);
+      if (!p) {
+        alert("Please search and select a Channel Partner by Contact Person Name or Company Name first.");
+        return;
+      }
       const act = {
         id: "act-" + Date.now(),
         partnerId: pId,
@@ -2396,8 +2653,22 @@
       }
 
       saveDB();
-      closeModal('logActivityModal');
       renderCurrentView();
+
+      // Clear form fields and immediately show the newly logged entry in Previous Logged Entries
+      document.getElementById('logClientName').value = "";
+      document.getElementById('logNotes').value = "";
+      renderLogPreviousEntries(p);
+
+      const banner = document.getElementById('logSavedBanner');
+      const bannerText = document.getElementById('logSavedBannerText');
+      if (bannerText) {
+        bannerText.innerText = `Logged ${act.type} (${act.outcome}) for ${p.reraName || p.company || p.name} (${p.name}). See Previous Entries below.`;
+      }
+      if (banner) {
+        banner.classList.remove('hidden');
+        banner.classList.add('flex');
+      }
     }
 
     function handleSaveOpportunity(e) {
