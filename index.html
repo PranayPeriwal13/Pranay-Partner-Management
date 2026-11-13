@@ -65,9 +65,6 @@
   </style>
 </head>
 <body class="min-h-screen bg-[#090A0F] text-slate-100 antialiased selection:bg-amber-500/20 selection:text-amber-200">
-  <div id="root"></div>
-  <div id="standalone-fallback">
-
 
   <!-- Header -->
   <header class="sticky top-0 z-40 bg-[#090A0F]/85 backdrop-blur-md border-b border-slate-800/80">
@@ -330,27 +327,67 @@
     </div>
 
     <!-- VIEW 4: Action Queue -->
-    <div id="view-actions" class="view-panel hidden space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div id="view-actions" class="view-panel hidden space-y-5">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         <div>
           <h2 class="text-xl font-bold text-slate-100">Consolidated Action Queue</h2>
-          <p class="text-xs text-slate-400">Every open CP must have a committed next action and follow-up date</p>
+          <p class="text-xs text-slate-400">Filter commitments by Sales Owner or exact Date Range, and execute daily broker follow-ups grouped by calendar date</p>
         </div>
-        <div class="flex items-center space-x-2 flex-wrap">
-          <button onclick="switchTab('scheduled')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-cyan-400 text-slate-950 hover:bg-cyan-300 shadow-sm">+ Schedule Meeting</button>
-          <button id="btnBulkDeleteUpcomingTop" onclick="bulkDeleteUpcomingCommitments()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white hover:bg-rose-400 shadow-sm">Bulk Delete Upcoming Commitments</button>
-          <button onclick="openModal('addCPModal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400">+ Add Partner</button>
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="flex items-center gap-1 p-1 rounded-xl bg-slate-900 border border-slate-800">
+            <button type="button" id="btnQueueModeTimeline" onclick="setQueueViewMode('timeline')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 text-slate-950 shadow-sm whitespace-nowrap">By Date Timeline</button>
+            <button type="button" id="btnQueueModeColumns" onclick="setQueueViewMode('columns')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white whitespace-nowrap">3-Column Split</button>
+          </div>
+          <button onclick="switchTab('scheduled')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-cyan-400 text-slate-950 hover:bg-cyan-300 shadow-sm whitespace-nowrap">+ Schedule Meeting</button>
+          <button id="btnBulkDeleteUpcomingTop" onclick="bulkDeleteUpcomingCommitments()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white hover:bg-rose-400 shadow-sm whitespace-nowrap">Bulk Delete Upcoming Commitments</button>
+          <button onclick="openModal('addCPModal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 whitespace-nowrap">+ Add Partner</button>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Filter Console: Clickable Owner Pills + Exact From/To Date Range Picker + Quick Horizon Presets -->
+      <div class="glass-card rounded-2xl p-4 space-y-3.5 border border-slate-800">
+        <!-- Row 1: Clickable Owner Filter Buttons with Live Counts -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-400">Filter by Accountable Sales Owner</span>
+            <button type="button" id="btnClearQueueOwner" onclick="setQueueOwnerFilter('')" class="hidden text-[11px] text-amber-400 hover:text-amber-300 font-semibold">Show All Owners</button>
+          </div>
+          <div id="queueOwnerPillsBar" class="flex items-center gap-1.5 flex-wrap"></div>
+        </div>
+
+        <!-- Row 2: Search + Exact From/To Date Range Picker + Quick Date Horizon Presets -->
+        <div class="pt-3 border-t border-slate-800/80 grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
+          <div class="lg:col-span-3">
+            <label class="block text-[11px] text-slate-400 font-medium mb-1">Search Partner or Action</label>
+            <input type="text" id="queueSearchInput" oninput="renderActions()" placeholder="Company, contact, action..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-400">
+          </div>
+          <div class="lg:col-span-2">
+            <label class="block text-[11px] text-slate-400 font-medium mb-1">From Date</label>
+            <input type="date" id="queueDateFrom" onchange="onQueueCustomDateChange()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-amber-400">
+          </div>
+          <div class="lg:col-span-2">
+            <label class="block text-[11px] text-slate-400 font-medium mb-1">To Date</label>
+            <input type="date" id="queueDateTo" onchange="onQueueCustomDateChange()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-amber-400">
+          </div>
+          <div class="lg:col-span-5">
+            <label class="block text-[11px] text-slate-400 font-medium mb-1">Quick Date Horizon Presets</label>
+            <div class="flex items-center gap-1.5 flex-wrap" id="queuePresetButtons"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 KPI Summary Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="queueKpiSummaryRow"></div>
+
+      <!-- Date-Grouped Timeline View (Default) -->
+      <div id="queueTimelineContainer" class="space-y-4"></div>
+
+      <!-- 3-Column Split View -->
+      <div id="queueColumnsContainer" class="hidden grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Overdue (Red) -->
         <div class="space-y-3">
           <div class="flex items-center justify-between pb-2 border-b border-rose-500/30">
-            <span class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center space-x-1.5">
-              <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-              <span>Overdue Follow-ups</span>
-            </span>
+            <span class="text-xs font-bold text-rose-400">Overdue Follow-ups</span>
             <span id="queueOverdueCount" class="text-xs font-mono px-2 py-0.5 rounded bg-rose-500/10 text-rose-400">0</span>
           </div>
           <div id="queueOverdueList" class="space-y-3"></div>
@@ -359,10 +396,7 @@
         <!-- Today (Amber) -->
         <div class="space-y-3">
           <div class="flex items-center justify-between pb-2 border-b border-amber-500/30">
-            <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center space-x-1.5">
-              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-              <span>Due Today</span>
-            </span>
+            <span class="text-xs font-bold text-amber-400">Due Today</span>
             <span id="queueTodayCount" class="text-xs font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400">0</span>
           </div>
           <div id="queueTodayList" class="space-y-3"></div>
@@ -371,9 +405,8 @@
         <!-- Upcoming (Slate) -->
         <div class="space-y-3">
           <div class="flex items-center justify-between pb-2 border-b border-slate-700 gap-2">
-            <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center space-x-2 cursor-pointer">
+            <label class="text-xs font-bold text-slate-300 flex items-center space-x-2 cursor-pointer">
               <input type="checkbox" id="selectAllUpcomingCheckbox" onchange="toggleSelectAllUpcoming(this.checked)" class="rounded border-slate-600 bg-slate-900 text-amber-400 focus:ring-0 cursor-pointer" title="Select all Upcoming Commitments">
-              <span class="w-2 h-2 rounded-full bg-sky-400"></span>
               <span>Upcoming Commitments</span>
             </label>
             <div class="flex items-center space-x-2">
@@ -2111,23 +2144,356 @@
       }
     }
 
-    // Render Action Queue (RERA Name Highlighted First, Contact Name Second + Bulk Delete Upcoming Commitments)
+    // Consolidated Action Queue State & Helpers (Date-Grouped Timeline + Clickable Owner Filter Pills + Exact Date Range)
+    let queueFilterOwner = "";
+    let queueFilterPreset = ""; // '' | 'overdue' | 'today' | 'tomorrow' | 'next7' | 'next30' | 'upcoming' | 'missing'
+    let queueViewMode = "timeline"; // 'timeline' | 'columns'
+
+    function setQueueViewMode(mode) {
+      queueViewMode = mode;
+      const btnT = document.getElementById('btnQueueModeTimeline');
+      const btnC = document.getElementById('btnQueueModeColumns');
+      const tlContainer = document.getElementById('queueTimelineContainer');
+      const colContainer = document.getElementById('queueColumnsContainer');
+      if (mode === 'timeline') {
+        if (btnT) btnT.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 text-slate-950 shadow-sm whitespace-nowrap";
+        if (btnC) btnC.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white whitespace-nowrap";
+        if (tlContainer) tlContainer.classList.remove('hidden');
+        if (colContainer) {
+          colContainer.classList.add('hidden');
+          colContainer.classList.remove('grid');
+        }
+      } else {
+        if (btnC) btnC.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 text-slate-950 shadow-sm whitespace-nowrap";
+        if (btnT) btnT.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white whitespace-nowrap";
+        if (tlContainer) tlContainer.classList.add('hidden');
+        if (colContainer) {
+          colContainer.classList.remove('hidden');
+          colContainer.classList.add('grid');
+        }
+      }
+      renderActions();
+    }
+
+    function setQueueOwnerFilter(owner) {
+      queueFilterOwner = queueFilterOwner === owner ? "" : owner;
+      renderActions();
+    }
+
+    function setQueueHorizonPreset(preset) {
+      const today = new Date().toISOString().split('T')[0];
+      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      const next7 = new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0];
+      const next30 = new Date(Date.now() + 86400000 * 30).toISOString().split('T')[0];
+
+      const fromEl = document.getElementById('queueDateFrom');
+      const toEl = document.getElementById('queueDateTo');
+
+      if (queueFilterPreset === preset && preset !== "") {
+        queueFilterPreset = "";
+        if (fromEl) fromEl.value = "";
+        if (toEl) toEl.value = "";
+      } else {
+        queueFilterPreset = preset;
+        if (preset === "today") {
+          if (fromEl) fromEl.value = today;
+          if (toEl) toEl.value = today;
+        } else if (preset === "tomorrow") {
+          if (fromEl) fromEl.value = tomorrow;
+          if (toEl) toEl.value = tomorrow;
+        } else if (preset === "next7") {
+          if (fromEl) fromEl.value = today;
+          if (toEl) toEl.value = next7;
+        } else if (preset === "next30") {
+          if (fromEl) fromEl.value = today;
+          if (toEl) toEl.value = next30;
+        } else {
+          if (fromEl) fromEl.value = "";
+          if (toEl) toEl.value = "";
+        }
+      }
+      renderActions();
+    }
+
+    function onQueueCustomDateChange() {
+      if (queueFilterPreset && queueFilterPreset !== "upcoming") {
+        queueFilterPreset = "";
+      }
+      renderActions();
+    }
+
+    function resetQueueFilters() {
+      queueFilterOwner = "";
+      queueFilterPreset = "";
+      const sEl = document.getElementById('queueSearchInput');
+      const fEl = document.getElementById('queueDateFrom');
+      const tEl = document.getElementById('queueDateTo');
+      if (sEl) sEl.value = "";
+      if (fEl) fEl.value = "";
+      if (tEl) tEl.value = "";
+      renderActions();
+    }
+
+    function formatStandaloneDateWithWeekday(dateStr) {
+      if (!dateStr || dateStr === "__MISSING__") return "No Follow-up Date Committed";
+      const parts = dateStr.split("-");
+      if (parts.length !== 3) return dateStr;
+      const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
+    }
+
+    function clearQueueDateGroup(dateKey) {
+      const targetPartners = DB.partners.filter(p => p.nextDate === dateKey);
+      if (!targetPartners.length) return;
+      if (confirm(`Clear all ${targetPartners.length} commitment(s) scheduled on ${formatStandaloneDateWithWeekday(dateKey)} (${dateKey})?`)) {
+        targetPartners.forEach(p => {
+          p.nextDate = "";
+          p.nextAction = "";
+        });
+        saveDB();
+        renderCurrentView();
+      }
+    }
+
     function renderActions() {
       const today = new Date().toISOString().split('T')[0];
-      const overdue = DB.partners.filter(p => p.nextDate && p.nextDate < today);
-      const dueToday = DB.partners.filter(p => p.nextDate === today);
-      const upcoming = DB.partners.filter(p => p.nextDate && p.nextDate > today);
+      const todayMs = new Date(today).getTime();
+      const owners = getActiveOwners();
 
-      document.getElementById('queueOverdueCount').innerText = overdue.length;
-      document.getElementById('queueTodayCount').innerText = dueToday.length;
-      document.getElementById('queueUpcomingCount').innerText = upcoming.length;
+      const searchEl = document.getElementById('queueSearchInput');
+      const fromEl = document.getElementById('queueDateFrom');
+      const toEl = document.getElementById('queueDateTo');
+
+      const q = ((searchEl && searchEl.value) || "").toLowerCase().trim();
+      const dateFrom = (fromEl && fromEl.value) || "";
+      const dateTo = (toEl && toEl.value) || "";
+
+      const diffDays = (dStr) => {
+        if (!dStr) return 9999;
+        const ms = new Date(dStr).getTime();
+        if (isNaN(ms)) return 9999;
+        return Math.round((ms - todayMs) / 86400000);
+      };
+
+      // Filter by Search + Date Range + Horizon Preset first so Owner pills display live counts
+      const dateAndSearchFiltered = DB.partners.filter(p => {
+        if (p.status === "Converted" && !p.nextDate) return false;
+        if (q) {
+          const hay = [p.reraName, p.company, p.name, p.phone, p.owner, p.nextAction, p.notes].join(" ").toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        if (dateFrom && (!p.nextDate || p.nextDate < dateFrom)) return false;
+        if (dateTo && (!p.nextDate || p.nextDate > dateTo)) return false;
+
+        const d = diffDays(p.nextDate);
+        if (queueFilterPreset === "overdue") return Boolean(p.nextDate && d < 0);
+        if (queueFilterPreset === "today") return Boolean(p.nextDate && d === 0);
+        if (queueFilterPreset === "tomorrow") return Boolean(p.nextDate && d === 1);
+        if (queueFilterPreset === "next7") return Boolean(p.nextDate && d >= 0 && d <= 7);
+        if (queueFilterPreset === "next30") return Boolean(p.nextDate && d >= 0 && d <= 30);
+        if (queueFilterPreset === "upcoming") return Boolean(p.nextDate && d > 0);
+        if (queueFilterPreset === "missing") return !p.nextDate;
+
+        return Boolean(p.nextDate);
+      });
+
+      // Owner counts
+      const ownerCounts = { ALL: dateAndSearchFiltered.length, Unassigned: 0 };
+      owners.forEach(o => { ownerCounts[o] = 0; });
+      dateAndSearchFiltered.forEach(p => {
+        const own = p.owner && p.owner !== "Unassigned" ? p.owner : "";
+        if (!own) ownerCounts.Unassigned = (ownerCounts.Unassigned || 0) + 1;
+        else ownerCounts[own] = (ownerCounts[own] || 0) + 1;
+      });
+
+      const clearOwnerBtn = document.getElementById('btnClearQueueOwner');
+      if (clearOwnerBtn) {
+        if (queueFilterOwner) clearOwnerBtn.classList.remove('hidden');
+        else clearOwnerBtn.classList.add('hidden');
+      }
+
+      const ownerBarEl = document.getElementById('queueOwnerPillsBar');
+      if (ownerBarEl) {
+        const allBtn = `
+          <button type="button" onclick="setQueueOwnerFilter('')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${queueFilterOwner === '' ? 'bg-amber-400 text-slate-950 shadow-sm' : 'bg-slate-900 border border-slate-800 text-slate-300 hover:text-white'}">
+            <span>All Owners</span>
+            <span class="font-mono text-[11px] opacity-85">(${ownerCounts.ALL || 0})</span>
+          </button>
+        `;
+        const ownerBtns = owners.map(o => `
+          <button type="button" onclick="setQueueOwnerFilter('${o.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${queueFilterOwner === o ? 'bg-amber-400 text-slate-950 shadow-sm' : 'bg-slate-900 border border-slate-800 text-slate-300 hover:text-white'}">
+            <span>${o}</span>
+            <span class="font-mono text-[11px] opacity-85">(${ownerCounts[o] || 0})</span>
+          </button>
+        `).join('');
+        const unassignedBtn = `
+          <button type="button" onclick="setQueueOwnerFilter('Unassigned')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${queueFilterOwner === 'Unassigned' ? 'bg-amber-400 text-slate-950 shadow-sm' : 'bg-slate-900 border border-slate-800 text-slate-300 hover:text-white'}">
+            <span>Unassigned</span>
+            <span class="font-mono text-[11px] opacity-85">(${ownerCounts.Unassigned || 0})</span>
+          </button>
+        `;
+        ownerBarEl.innerHTML = allBtn + ownerBtns + unassignedBtn;
+      }
+
+      // Preset buttons
+      const presetEl = document.getElementById('queuePresetButtons');
+      const hasAnyFilter = Boolean(queueFilterOwner || queueFilterPreset || dateFrom || dateTo || q);
+      if (presetEl) {
+        const presets = [
+          { id: "", label: "All Dates" },
+          { id: "overdue", label: "Overdue" },
+          { id: "today", label: "Today" },
+          { id: "tomorrow", label: "Tomorrow" },
+          { id: "next7", label: "Next 7 Days" },
+          { id: "next30", label: "Next 30 Days" }
+        ];
+        presetEl.innerHTML = presets.map(pr => {
+          const isAct = queueFilterPreset === pr.id && (pr.id !== "" || (!dateFrom && !dateTo));
+          return `<button type="button" onclick="setQueueHorizonPreset('${pr.id}')" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-colors whitespace-nowrap ${isAct ? 'bg-sky-400 text-slate-950 shadow-sm' : 'bg-slate-900 border border-slate-800 text-slate-300 hover:text-white'}">${pr.label}</button>`;
+        }).join('') + (hasAnyFilter ? `<button type="button" onclick="resetQueueFilters()" class="px-2.5 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-400 text-white text-[11px] font-bold whitespace-nowrap">Reset</button>` : '');
+      }
+
+      // Owner-scoped counts for KPI summary cards
+      const ownerScoped = DB.partners.filter(p => {
+        if (p.status === "Converted" && !p.nextDate) return false;
+        if (!queueFilterOwner) return true;
+        if (queueFilterOwner === "Unassigned") return !p.owner || p.owner === "Unassigned";
+        return p.owner === queueFilterOwner;
+      });
+
+      const overdueAll = ownerScoped.filter(p => p.nextDate && p.nextDate < today);
+      const dueTodayAll = ownerScoped.filter(p => p.nextDate === today);
+      const upcomingAll = ownerScoped.filter(p => p.nextDate && p.nextDate > today);
+      const missingAll = ownerScoped.filter(p => !p.nextDate);
+
+      const kpiRowEl = document.getElementById('queueKpiSummaryRow');
+      if (kpiRowEl) {
+        kpiRowEl.innerHTML = `
+          <button type="button" onclick="setQueueHorizonPreset('overdue')" class="glass-card rounded-xl p-4 text-left border ${queueFilterPreset === 'overdue' ? 'border-rose-500/60 bg-rose-500/10' : 'border-slate-800'}">
+            <div class="text-xs font-semibold text-rose-400">Overdue Commitments</div>
+            <div class="text-2xl font-bold font-mono text-rose-400 mt-1">${overdueAll.length}</div>
+            <div class="text-[11px] text-slate-500">${queueFilterOwner ? 'Scoped to ' + queueFilterOwner : 'Needs immediate recovery'}</div>
+          </button>
+          <button type="button" onclick="setQueueHorizonPreset('today')" class="glass-card rounded-xl p-4 text-left border ${queueFilterPreset === 'today' ? 'border-amber-400/60 bg-amber-500/10' : 'border-slate-800'}">
+            <div class="text-xs font-semibold text-amber-400">Due Today (${today})</div>
+            <div class="text-2xl font-bold font-mono text-amber-400 mt-1">${dueTodayAll.length}</div>
+            <div class="text-[11px] text-slate-500">Today's committed touches</div>
+          </button>
+          <button type="button" onclick="setQueueHorizonPreset('upcoming')" class="glass-card rounded-xl p-4 text-left border ${queueFilterPreset === 'upcoming' ? 'border-sky-400/60 bg-sky-500/10' : 'border-slate-800'}">
+            <div class="text-xs font-semibold text-sky-400">Upcoming Commitments</div>
+            <div class="text-2xl font-bold font-mono text-white mt-1">${upcomingAll.length}</div>
+            <div class="text-[11px] text-slate-500">Scheduled pipeline touches</div>
+          </button>
+          <button type="button" onclick="setQueueHorizonPreset('missing')" class="glass-card rounded-xl p-4 text-left border ${queueFilterPreset === 'missing' ? 'border-purple-400/60 bg-purple-500/10' : 'border-slate-800'}">
+            <div class="text-xs font-semibold text-purple-400">No Follow-up Date</div>
+            <div class="text-2xl font-bold font-mono text-purple-300 mt-1">${missingAll.length}</div>
+            <div class="text-[11px] text-slate-500">Gaps in sales cadence</div>
+          </button>
+        `;
+      }
+
+      // Final filtered list (Owner + Date Range + Horizon + Search) sorted chronologically
+      const filtered = dateAndSearchFiltered
+        .filter(p => {
+          if (!queueFilterOwner) return true;
+          if (queueFilterOwner === "Unassigned") return !p.owner || p.owner === "Unassigned";
+          return p.owner === queueFilterOwner;
+        })
+        .sort((a, b) => (a.nextDate || "9999").localeCompare(b.nextDate || "9999"));
+
+      const overdue = filtered.filter(p => p.nextDate && p.nextDate < today);
+      const dueToday = filtered.filter(p => p.nextDate === today);
+      const upcoming = filtered.filter(p => p.nextDate && p.nextDate > today);
+
+      const ovCountEl = document.getElementById('queueOverdueCount');
+      const tdCountEl = document.getElementById('queueTodayCount');
+      const upCountEl = document.getElementById('queueUpcomingCount');
+      if (ovCountEl) ovCountEl.innerText = overdue.length;
+      if (tdCountEl) tdCountEl.innerText = dueToday.length;
+      if (upCountEl) upCountEl.innerText = upcoming.length;
 
       const topBtn = document.getElementById('btnBulkDeleteUpcomingTop');
       const colBtn = document.getElementById('btnBulkDeleteUpcomingCol');
       const selAll = document.getElementById('selectAllUpcomingCheckbox');
-      if (topBtn) topBtn.innerText = `Bulk Delete Upcoming Commitments (${upcoming.length})`;
+      if (topBtn) topBtn.innerText = `Bulk Delete Upcoming Commitments (${upcomingAll.length})`;
       if (colBtn) colBtn.innerText = `Bulk Delete (${upcoming.length})`;
       if (selAll) selAll.checked = false;
+
+      // Group by Date for Timeline View
+      const dateMap = new Map();
+      filtered.forEach(p => {
+        const k = p.nextDate || "__MISSING__";
+        if (!dateMap.has(k)) dateMap.set(k, []);
+        dateMap.get(k).push(p);
+      });
+
+      const tlContainer = document.getElementById('queueTimelineContainer');
+      if (tlContainer) {
+        if (dateMap.size === 0) {
+          tlContainer.innerHTML = `
+            <div class="glass-card rounded-2xl p-10 text-center text-xs text-slate-400 space-y-3">
+              <p>No commitments match the selected Owner or Date Range filters.</p>
+              ${hasAnyFilter ? `<button type="button" onclick="resetQueueFilters()" class="px-4 py-2 rounded-xl bg-amber-400 text-slate-950 font-bold text-xs">Reset All Filters</button>` : ''}
+            </div>
+          `;
+        } else {
+          tlContainer.innerHTML = Array.from(dateMap.entries()).map(([dateKey, items]) => {
+            const isMissing = dateKey === "__MISSING__";
+            const d = diffDays(dateKey);
+            const isOverdue = !isMissing && d < 0;
+            const isToday = !isMissing && d === 0;
+            const isTomorrow = !isMissing && d === 1;
+            const headerBorder = isMissing ? 'border-purple-500/30 bg-slate-900/95 text-purple-300' : isOverdue ? 'border-rose-500/40 bg-slate-900/95 text-rose-300' : isToday ? 'border-amber-400/50 bg-slate-900/95 text-amber-300' : 'border-sky-500/30 bg-slate-900/95 text-sky-300';
+            const relLabel = isMissing ? 'Unscheduled' : isOverdue ? `${Math.abs(d)}d overdue` : isToday ? 'Due Today' : isTomorrow ? 'Due Tomorrow' : `Upcoming in ${d}d`;
+
+            return `
+              <div class="space-y-2.5">
+                <div class="sticky top-16 z-20 px-4 py-2.5 rounded-xl border ${headerBorder} flex flex-wrap items-center justify-between gap-2 shadow-sm">
+                  <div class="flex items-center gap-2.5 flex-wrap">
+                    <span class="text-xs sm:text-sm font-bold text-white">${formatStandaloneDateWithWeekday(dateKey)}</span>
+                    ${!isMissing ? `<span class="font-mono text-xs text-slate-400">(${dateKey})</span>` : ''}
+                    <span class="font-mono text-xs font-semibold">· ${relLabel}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono text-slate-200 font-semibold">${items.length} ${items.length === 1 ? 'commitment' : 'commitments'}</span>
+                    ${!isMissing ? `<button type="button" onclick="clearQueueDateGroup('${dateKey}')" class="px-2.5 py-1 rounded-lg bg-rose-500 hover:bg-rose-400 text-white font-bold text-[11px]">Clear Date (${items.length})</button>` : ''}
+                  </div>
+                </div>
+                <div class="space-y-2.5">
+                  ${items.map(p => {
+                    const isSchedMtg = p.status === "Meeting Scheduled" || (p.nextAction && p.nextAction.toLowerCase().includes("scheduled meeting"));
+                    return `
+                      <div class="glass-card rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 ${isOverdue ? 'border-rose-500/30' : isToday ? 'border-amber-400/30' : 'border-slate-800'}">
+                        <div class="space-y-1">
+                          <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-bold text-amber-300 text-sm">${p.reraName || p.company || p.name}</span>
+                            <span class="text-xs text-slate-200 font-semibold">· Contact: ${p.name}</span>
+                            ${isSchedMtg ? `<span class="px-2 py-0.5 rounded bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-[10px] font-bold">Scheduled Meeting</span>` : ''}
+                            ${p.phone ? `<span class="text-xs text-slate-400 font-mono">+91 ${p.phone}</span>` : ''}
+                            <span class="text-xs text-slate-400">· Owner: <strong class="text-white">${p.owner || 'Unassigned'}</strong></span>
+                          </div>
+                          <p class="text-xs text-slate-200"><strong class="text-amber-400">Next Action:</strong> ${p.nextAction || 'Follow up on client requirements'}</p>
+                          <div class="text-[11px] font-mono text-slate-400">
+                            <span>Due: ${p.nextDate || 'Not set'} (${relLabel})</span> · <span>Last Touch: ${p.lastTouch || '—'}</span> · <span>Priority: ${p.priority || 'B - Develop'}</span>
+                          </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-wrap shrink-0">
+                          <button type="button" onclick="openCPWhatsApp('${p.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-xs">WhatsApp</button>
+                          <button type="button" onclick="quickCompleteAction('${p.id}')" class="px-3 py-1.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs">Quick Complete</button>
+                          <button type="button" onclick="openLogActivityForPartner('${p.id}')" class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs">Log Full</button>
+                          <button type="button" onclick="openCPDetail('${p.id}')" class="px-2.5 py-1.5 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-bold text-xs">Profile</button>
+                          <button type="button" onclick="deleteSingleCommitment('${p.id}')" class="px-2.5 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs">Delete</button>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
 
       const renderCard = (p, isOverdue, isUpcoming) => {
         const isSchedMtg = p.status === "Meeting Scheduled" || (p.nextAction && p.nextAction.toLowerCase().includes("scheduled meeting"));
@@ -2139,7 +2505,7 @@
               <div>
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="font-bold text-amber-300 text-xs">${p.reraName || p.company || p.name}</span>
-                  ${isSchedMtg ? `<span class="px-1.5 py-0.5 rounded bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-[9px] font-bold">📅 Scheduled Meeting</span>` : ''}
+                  ${isSchedMtg ? `<span class="px-1.5 py-0.5 rounded bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-[9px] font-bold">Scheduled Meeting</span>` : ''}
                 </div>
                 <div class="text-[11px] text-slate-300 mt-0.5">Contact: <span class="text-white font-semibold">${p.name}</span></div>
               </div>
@@ -2150,9 +2516,11 @@
           <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 text-[11px] text-slate-400">
             <span>Owner: <strong class="text-slate-200">${p.owner}</strong></span>
             <div class="flex items-center space-x-1.5">
-              <button onclick="openCPDetail('${p.id}')" class="px-2 py-0.5 rounded bg-sky-400 text-slate-950 font-bold text-xs hover:bg-sky-300">Review</button>
-              <button onclick="quickCompleteAction('${p.id}')" class="px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-bold text-xs hover:bg-amber-300">Done</button>
-              <button onclick="deleteSingleCommitment('${p.id}')" class="px-2 py-0.5 rounded bg-rose-500 text-white font-bold text-xs hover:bg-rose-400" title="Delete Commitment">Delete</button>
+              <button onclick="openCPWhatsApp('${p.id}')" class="px-2 py-0.5 rounded bg-emerald-400 text-slate-950 font-bold text-xs hover:bg-emerald-300">WA</button>
+              <button onclick="openLogActivityForPartner('${p.id}')" class="px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-bold text-xs hover:bg-amber-300">Log</button>
+              <button onclick="openCPDetail('${p.id}')" class="px-2 py-0.5 rounded bg-sky-400 text-slate-950 font-bold text-xs hover:bg-sky-300">Profile</button>
+              <button onclick="quickCompleteAction('${p.id}')" class="px-2 py-0.5 rounded bg-cyan-400 text-slate-950 font-bold text-xs hover:bg-cyan-300">Done</button>
+              <button onclick="deleteSingleCommitment('${p.id}')" class="px-2 py-0.5 rounded bg-rose-500 text-white font-bold text-xs hover:bg-rose-400" title="Delete Commitment">✕</button>
             </div>
           </div>
         </div>
@@ -3668,20 +4036,7 @@
       }
     });
   </script>
-
   </div>
-  <script>
-    (function() {
-      var h = window.location.hostname;
-      if (h === "localhost" || h === "127.0.0.1" || h.indexOf(".run.app") !== -1) {
-        var fb = document.getElementById("standalone-fallback");
-        if (fb) fb.remove();
-        var s = document.createElement("script");
-        s.type = "module";
-        s.src = "/src/main.tsx";
-        document.body.appendChild(s);
-      }
-    })();
-  </script>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
