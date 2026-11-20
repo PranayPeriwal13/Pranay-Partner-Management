@@ -66,7 +66,7 @@
 </head>
 <body class="min-h-screen bg-[#090A0F] text-slate-100 antialiased selection:bg-amber-500/20 selection:text-amber-200">
   <div id="root"></div>
-  <div id="standalone-fallback-app" style="display:none;">
+  <div id="standalone-fallback-app">
 
   <!-- Header -->
   <header class="sticky top-0 z-40 bg-[#090A0F]/85 backdrop-blur-md border-b border-slate-800/80">
@@ -86,11 +86,16 @@
         </div>
 
         <!-- Quick Actions & User -->
-        <div class="flex items-center space-x-1.5 sm:space-x-2.5 overflow-x-auto hide-scrollbar">
-          <button onclick="openModal('hostingerDbModal')" class="inline-flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold bg-emerald-400 text-slate-950 hover:bg-emerald-300 shadow-sm transition-all shrink-0" title="Hostinger Static HTML, Live MySQL/Supabase Database Sync & Universal CRM Migration">
+        <div class="flex items-center space-x-1.5 sm:space-x-2 overflow-x-auto hide-scrollbar">
+          <button onclick="downloadThisHTML()" class="inline-flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold bg-emerald-400 text-slate-950 hover:bg-emerald-300 shadow-sm transition-all shrink-0" title="1-Click Download Clean Standalone index.html for Hostinger or GitHub Pages">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>Save index.html</span>
+          </button>
+
+          <button onclick="openModal('hostingerDbModal')" class="inline-flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold bg-teal-400 text-slate-950 hover:bg-teal-300 shadow-sm transition-all shrink-0" title="Hostinger Live MySQL/Supabase Database Sync & 5-Sheet Excel / CRM Migration">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
-            <span class="hidden md:inline">Hostinger & DB / Backup</span>
-            <span class="md:hidden">DB & HTML</span>
+            <span class="hidden md:inline">DB &amp; Backup</span>
+            <span class="md:hidden">Backup</span>
           </button>
 
           <button onclick="openModal('addCPModal')" class="inline-flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 text-slate-950 hover:bg-amber-300 shadow-sm transition-all shrink-0">
@@ -854,8 +859,8 @@
           </button>
         </div>
 
-        <!-- Collapsible Add Form -->
-        <form id="standaloneTargetForm" onsubmit="handleSaveStandaloneTarget(event)" class="hidden mt-5 pt-4 border-t border-slate-800 space-y-3 text-xs">
+        <!-- Always-Accessible Add Form (Open by Default) -->
+        <form id="standaloneTargetForm" onsubmit="handleSaveStandaloneTarget(event)" class="mt-5 pt-4 border-t border-slate-800 space-y-3 text-xs">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
               <label class="block text-amber-300 font-bold mb-1">RERA / Company Name *</label>
@@ -2624,19 +2629,30 @@
         const copyOwnerBtns = owners.map(o => {
           const st = ownerUrgent[o] || { ov: 0, td: 0 };
           const hasUrgent = (st.ov + st.td) > 0;
+          const safeO = o.replace(/'/g, "\\'");
           return `
-            <button type="button" onclick="copyStandaloneOwnerDigest('${o.replace(/'/g, "\\'")}', false)" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all flex items-center gap-1.5 whitespace-nowrap ${hasUrgent ? 'bg-emerald-400 hover:bg-emerald-300 text-slate-950 shadow-sm' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'}">
-              <span>Copy ${o}</span>
-              <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-black/20">${st.ov} Overdue · ${st.td} Today</span>
-            </button>
+            <div class="inline-flex items-center gap-1 p-1 rounded-xl border ${hasUrgent ? 'bg-slate-950 border-emerald-500/40' : 'bg-slate-900/70 border-slate-800'}">
+              <button type="button" onclick="copyStandaloneOwnerDigest('${safeO}', false)" class="px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all flex items-center gap-1.5 whitespace-nowrap ${hasUrgent ? 'bg-emerald-400 hover:bg-emerald-300 text-slate-950 shadow-sm' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'}">
+                <span>Copy ${o}</span>
+                <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-black/20">${st.ov} Ov · ${st.td} Td</span>
+              </button>
+              <button type="button" onclick="sendStandaloneOwnerDigestWhatsApp('${safeO}')" class="px-2 py-1 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-extrabold" title="Open WhatsApp with ${o}'s Overdue & Today commitments pre-filled">
+                WA
+              </button>
+            </div>
           `;
         }).join('');
 
         const copyAllBtn = `
-          <button type="button" onclick="copyStandaloneOwnerDigest('ALL', false)" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-sm whitespace-nowrap">
-            <span>Copy All Team Digest</span>
-            <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-black/15">${ownerUrgent.ALL.ov} Overdue · ${ownerUrgent.ALL.td} Today</span>
-          </button>
+          <div class="inline-flex items-center gap-1 p-1 rounded-xl border border-amber-400/50 bg-amber-950/20">
+            <button type="button" onclick="copyStandaloneOwnerDigest('ALL', false)" class="px-2.5 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-sm whitespace-nowrap">
+              <span>Copy All Team</span>
+              <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-black/15">${ownerUrgent.ALL.ov} Ov · ${ownerUrgent.ALL.td} Td</span>
+            </button>
+            <button type="button" onclick="sendStandaloneOwnerDigestWhatsApp('ALL')" class="px-2 py-1 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-extrabold" title="Open WhatsApp with All Owners Master Digest pre-filled">
+              WA All
+            </button>
+          </div>
         `;
         copyBarEl.innerHTML = copyOwnerBtns + copyAllBtn;
       }
@@ -4309,10 +4325,14 @@
       }, 500);
     }
 
-    // Direct Download of Clean Standalone HTML File (Stripping any browser extension artifacts)
+    // Direct Download of Clean Standalone HTML File (Stripping any browser extension or Vite artifacts)
     function downloadThisHTML() {
       const clone = document.documentElement.cloneNode(true);
-      clone.querySelectorAll('__hrp__, [data-ext-id], script[src^="chrome-extension://"]').forEach(el => el.remove());
+      clone.querySelectorAll('__hrp__, [data-ext-id], script[src^="chrome-extension://"], #root, script[src="/src/main.tsx"]').forEach(el => el.remove());
+      const fallbackWrapper = clone.querySelector('#standalone-fallback-app');
+      if (fallbackWrapper) {
+        fallbackWrapper.removeAttribute('style');
+      }
       // Ensure the downloaded HTML always starts with the mandatory PIN gate locked
       const clonedUserModal = clone.querySelector('#userModal');
       if (clonedUserModal) {
@@ -4611,17 +4631,27 @@
       }
       calGrid.innerHTML = calHtml;
 
+      const timeSlots = ["10:00 AM", "11:00 AM", "11:30 AM", "12:30 PM", "02:00 PM", "02:30 PM", "03:30 PM", "04:00 PM", "04:30 PM", "05:30 PM", "06:30 PM"];
+      const availStatuses = ["Time Given - Confirmed", "Rescheduled by Partner", "Evening Only (4 PM - 7 PM)", "Morning Only (10 AM - 1 PM)", "Flexible Availability", "Awaiting Time Slot"];
+
       rosterEl.innerHTML = DB.targetPartners.map(tp => `
         <div class="glass-card rounded-2xl p-4 border ${standaloneActiveFlowId === tp.id ? 'border-amber-400' : 'border-slate-800'} space-y-2.5 text-xs">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
             <div>
               <div class="text-base font-extrabold text-amber-300">${tp.companyName}</div>
               <div class="text-slate-200 font-semibold">Contact: <strong class="text-white">${tp.contactPerson}</strong> · <span class="text-emerald-300 font-mono">${tp.phone}</span> · Owner: <span class="text-sky-300">${tp.owner}</span></div>
             </div>
-            <div class="bg-slate-950 border border-cyan-500/40 rounded-xl px-3 py-1.5 text-right">
-              <div class="text-[10px] text-cyan-300 font-bold uppercase">Given Time Slot</div>
-              <div class="font-extrabold text-white">${tp.givenDate} · <span class="text-amber-300">${tp.givenTimeSlot}</span></div>
-              <div class="text-[10px] text-emerald-300">${tp.availabilityStatus}</div>
+            <div class="bg-slate-950 border border-cyan-500/40 rounded-xl px-3 py-2 space-y-1.5">
+              <div class="text-[10px] text-cyan-300 font-bold uppercase">⚡ 1-Click Inline Calendar &amp; Availability Shift</div>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <input type="date" value="${tp.givenDate}" onchange="quickInlineShiftStandaloneTarget('${tp.id}', 'date', this.value)" class="bg-slate-900 border border-cyan-500/40 rounded-lg px-2 py-1 text-xs font-extrabold text-white cursor-pointer">
+                <select onchange="quickInlineShiftStandaloneTarget('${tp.id}', 'time', this.value)" class="bg-slate-900 border border-amber-500/40 rounded-lg px-2 py-1 text-xs font-extrabold text-amber-300 cursor-pointer">
+                  ${timeSlots.map(s => `<option value="${s}" ${tp.givenTimeSlot === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </div>
+              <select onchange="quickInlineShiftStandaloneTarget('${tp.id}', 'status', this.value)" class="w-full bg-slate-900 border border-emerald-500/30 rounded-lg px-2 py-1 text-[11px] font-bold text-emerald-300 cursor-pointer">
+                ${availStatuses.map(st => `<option value="${st}" ${tp.availabilityStatus === st ? 'selected' : ''}>${st}</option>`).join('')}
+              </select>
             </div>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -4635,9 +4665,10 @@
             </div>
           </div>
           <div class="flex flex-wrap items-center gap-2 pt-1">
-            <button onclick="openShiftTargetModal('${tp.id}')" class="px-3 py-1.5 rounded-lg bg-cyan-400 text-slate-950 font-extrabold">Shift via Calendar</button>
-            <button onclick="standaloneActiveFlowId='${tp.id}';renderStandaloneTargets();" class="px-3 py-1.5 rounded-lg bg-emerald-400 text-slate-950 font-extrabold">Load in Claude/Gemini Flow</button>
-            <button onclick="launchStandaloneExtensionFlow('${tp.id}')" class="px-3 py-1.5 rounded-lg bg-amber-400 text-slate-950 font-extrabold">Auto-Send WhatsApp Now</button>
+            <button onclick="launchStandaloneExtensionFlow('${tp.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-400 text-slate-950 font-extrabold">💬 1-Click Send WhatsApp (With Notes)</button>
+            <button onclick="copyStandaloneTargetWhatsAppText('${tp.id}')" class="px-3 py-1.5 rounded-lg bg-amber-400 text-slate-950 font-extrabold">Copy WA Text</button>
+            <button onclick="standaloneActiveFlowId='${tp.id}';renderStandaloneTargets();" class="px-3 py-1.5 rounded-lg bg-cyan-400 text-slate-950 font-extrabold">Load in Claude/Gemini Flow</button>
+            <button onclick="openShiftTargetModal('${tp.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-200 font-bold">Shift + Add Note</button>
           </div>
         </div>
       `).join('');
@@ -4856,9 +4887,69 @@
       copyStandaloneOwnerDigest(activeStandaloneDigestOwner, incUp);
     }
 
+    function quickInlineShiftStandaloneTarget(tpId, field, val) {
+      ensureStandaloneTargetPartners();
+      const tp = DB.targetPartners.find(item => item.id === tpId);
+      if (!tp || !val) return;
+      if (field === 'status') {
+        tp.availabilityStatus = val;
+      } else {
+        const oldDate = tp.givenDate;
+        const oldTime = tp.givenTimeSlot;
+        const newDate = field === 'date' ? val : tp.givenDate;
+        const newTime = field === 'time' ? val : tp.givenTimeSlot;
+        tp.shiftHistory = tp.shiftHistory || [];
+        tp.shiftHistory.unshift({
+          fromDate: oldDate,
+          fromTime: oldTime,
+          toDate: newDate,
+          toTime: newTime,
+          availabilityReason: `Inline calendar shift to ${newDate} at ${newTime} per partner availability.`
+        });
+        tp.givenDate = newDate;
+        tp.givenTimeSlot = newTime;
+        tp.availabilityStatus = "Rescheduled by Partner";
+        tp.outreachStage = "Appointment Shifted";
+        DB.partners.forEach(p => {
+          if (p.id === "cp-" + tp.id || (p.name && p.name.toLowerCase() === tp.contactPerson.toLowerCase())) {
+            p.nextDate = newDate;
+            p.nextAction = `[Shifted Target Slot · ${newTime}] Inline calendar shift per partner availability`;
+          }
+        });
+      }
+      standaloneActiveFlowId = tp.id;
+      standaloneFlowStep = "shifted_time";
+      saveDB();
+      renderStandaloneTargets();
+    }
+
+    function copyStandaloneTargetWhatsAppText(tpId) {
+      ensureStandaloneTargetPartners();
+      const tp = DB.targetPartners.find(item => item.id === tpId);
+      if (!tp) return;
+      const step = (tp.shiftHistory && tp.shiftHistory.length > 0) ? "shifted_time" : "confirm_time";
+      const msg = buildStandaloneWhatsAppMsg(tp, step);
+      if (navigator.clipboard) navigator.clipboard.writeText(msg).catch(() => {});
+      standaloneActiveFlowId = tp.id;
+      standaloneFlowStep = step;
+      renderStandaloneTargets();
+    }
+
+    function sendStandaloneOwnerDigestWhatsApp(ownerName) {
+      const txt = buildStandaloneOwnerDigestText(ownerName, false);
+      window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank', 'noopener,noreferrer');
+    }
+
     // Boot App
     document.addEventListener("DOMContentLoaded", () => {
+      if (window.__VITE_REACT_ACTIVE__) return;
+      const fb = document.getElementById('standalone-fallback-app');
+      if (fb) fb.style.display = 'block';
       if (!document.getElementById('heroSummary')) return;
+      const tpDateInput = document.getElementById('tpDateInput');
+      if (tpDateInput && !tpDateInput.value) {
+        tpDateInput.value = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      }
       ensureStandaloneTargetPartners();
       syncOwnerDropdowns();
       renderCommandCentre();
