@@ -65,6 +65,8 @@
   </style>
 </head>
 <body class="min-h-screen bg-[#090A0F] text-slate-100 antialiased selection:bg-amber-500/20 selection:text-amber-200">
+  <div id="root"></div>
+  <div id="standalone-fallback-app" style="display:none;">
 
   <!-- Header -->
   <header class="sticky top-0 z-40 bg-[#090A0F]/85 backdrop-blur-md border-b border-slate-800/80">
@@ -84,34 +86,33 @@
         </div>
 
         <!-- Quick Actions & User -->
-        <div class="flex items-center space-x-2 sm:space-x-3">
-          <button onclick="downloadThisHTML()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-400 text-slate-950 hover:bg-emerald-300 shadow-sm transition-all">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-            <span class="hidden sm:inline">Save index.html</span>
+        <div class="flex items-center space-x-1.5 sm:space-x-2.5 overflow-x-auto hide-scrollbar">
+          <button onclick="openModal('hostingerDbModal')" class="inline-flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold bg-emerald-400 text-slate-950 hover:bg-emerald-300 shadow-sm transition-all shrink-0" title="Hostinger Static HTML, Live MySQL/Supabase Database Sync & Universal CRM Migration">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+            <span class="hidden md:inline">Hostinger & DB / Backup</span>
+            <span class="md:hidden">DB & HTML</span>
           </button>
 
-          <button onclick="openModal('addCPModal')" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 text-slate-950 hover:bg-amber-300 shadow-sm transition-all">
+          <button onclick="openModal('addCPModal')" class="inline-flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 text-slate-950 hover:bg-amber-300 shadow-sm transition-all shrink-0">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Add CP</span>
           </button>
 
-          <button onclick="openModal('logActivityModal')" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-400 text-slate-950 hover:bg-cyan-300 shadow-sm transition-all">
+          <button onclick="openModal('logActivityModal')" class="inline-flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-400 text-slate-950 hover:bg-cyan-300 shadow-sm transition-all shrink-0">
             <svg class="w-3.5 h-3.5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-            <span class="hidden sm:inline">Log Action</span>
+            <span>Log</span>
           </button>
 
-          <button onclick="openModal('settingsModal')" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-500 text-white hover:bg-violet-400 shadow-sm transition-all" title="Settings: Manage Partner Owners & Private Claude API Key">
+          <button onclick="openModal('settingsModal')" class="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-violet-500 text-white hover:bg-violet-400 shadow-sm transition-all shrink-0" title="Settings: Manage Partner Owners & Private Claude API Key">
             <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <span>Settings</span>
+            <span class="hidden sm:inline">Settings</span>
           </button>
-
-          <div class="h-4 w-px bg-slate-800 mx-1"></div>
 
           <!-- Current User Switcher -->
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-1.5 shrink-0">
             <button onclick="openModal('userModal')" id="userBadge" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-sky-400 hover:bg-sky-300 text-slate-950 font-bold text-xs transition-colors shadow-sm" title="Switch Sales Account">
               <span id="userAvatar" class="w-4 h-4 rounded-full bg-slate-950 text-amber-400 font-bold flex items-center justify-center text-[10px]">P</span>
-              <span id="userName" class="font-bold text-slate-950">Pranay</span>
+              <span id="userName" class="font-bold text-slate-950 hidden sm:inline">Pranay</span>
             </button>
           </div>
         </div>
@@ -121,6 +122,7 @@
       <div class="flex space-x-1.5 overflow-x-auto hide-scrollbar py-2 border-t border-slate-800/40 text-xs font-semibold">
         <button onclick="switchTab('command')" id="tab-command" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap bg-amber-400 text-slate-950 font-bold shadow-sm">Command Centre</button>
         <button onclick="switchTab('directory')" id="tab-directory" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-200 bg-slate-800/80 hover:bg-slate-700 transition-colors">CP Directory</button>
+        <button onclick="switchTab('targets')" id="tab-targets" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-400 hover:text-slate-950 font-bold transition-colors">Target Partners</button>
         <button onclick="switchTab('pipeline')" id="tab-pipeline" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-200 bg-slate-800/80 hover:bg-slate-700 transition-colors">Deal Pipeline</button>
         <button onclick="switchTab('actions')" id="tab-actions" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-200 bg-slate-800/80 hover:bg-slate-700 transition-colors">Action Queue</button>
         <button onclick="switchTab('scheduled')" id="tab-scheduled" class="nav-tab px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-200 bg-slate-800/80 hover:bg-slate-700 transition-colors">Scheduled Meetings</button>
@@ -131,6 +133,16 @@
       </div>
     </div>
   </header>
+
+  <!-- Mobile Bottom Quick-Navigation Dock (< md screens) -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[#090A0F]/95 backdrop-blur-xl border-t border-slate-800 px-1.5 py-1.5 flex items-center justify-around shadow-2xl text-[10px] font-extrabold">
+    <button onclick="switchTab('command')" class="px-2 py-1 rounded-lg text-slate-200 hover:text-amber-300">Command</button>
+    <button onclick="switchTab('directory')" class="px-2 py-1 rounded-lg text-slate-200 hover:text-amber-300">Directory</button>
+    <button onclick="switchTab('targets')" class="px-2 py-1 rounded-lg text-emerald-300 bg-emerald-500/15 border border-emerald-500/30">Target CPs</button>
+    <button onclick="switchTab('pipeline')" class="px-2 py-1 rounded-lg text-slate-200 hover:text-amber-300">Pipeline</button>
+    <button onclick="switchTab('actions')" class="px-2 py-1 rounded-lg text-slate-200 hover:text-amber-300">Queue</button>
+    <button onclick="openModal('hostingerDbModal')" class="px-2 py-1 rounded-lg bg-amber-400 text-slate-950">DB & HTML</button>
+  </nav>
 
   <!-- Main Content Container -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20">
@@ -810,7 +822,220 @@
         </div>
       </div>
     </div>
+
+    <!-- VIEW 9: Target Partners & Availability Calendar -->
+    <div id="view-targets" class="view-panel hidden space-y-6">
+      <div class="glass-card rounded-2xl p-4 sm:p-6 border border-amber-500/30">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[11px] font-extrabold uppercase tracking-wider mb-1">
+              Target Partner Acquisition · Calendar Shifter · Claude & Gemini WhatsApp Flow
+            </span>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-white">Target Partners & Availability Calendar</h2>
+            <p class="text-xs text-slate-300 mt-1">
+              See exact time slots given by new target partners, shift appointments via the calendar based on their availability, and run automated Notes-Aware WhatsApp outreach through the Claude Browser Extension or Gemini Sidebar Extension.
+            </p>
+          </div>
+          <button onclick="toggleStandaloneTargetForm()" class="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-lg shrink-0">
+            + Add New Target Partner
+          </button>
+        </div>
+
+        <!-- Collapsible Add Form -->
+        <form id="standaloneTargetForm" onsubmit="handleSaveStandaloneTarget(event)" class="hidden mt-5 pt-4 border-t border-slate-800 space-y-3 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div>
+              <label class="block text-amber-300 font-bold mb-1">RERA / Company Name *</label>
+              <input type="text" id="tpCompanyInput" required placeholder="e.g. Crestview Luxury LLP" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">Contact Person *</label>
+              <input type="text" id="tpContactInput" required placeholder="e.g. Siddharth Malhotra" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">WhatsApp Phone *</label>
+              <input type="text" id="tpPhoneInput" required placeholder="e.g. 9811445566" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">Assigned Owner</label>
+              <select id="tpOwnerInput" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white">
+                <option value="Pranay">Pranay</option>
+                <option value="Jasjeet">Jasjeet</option>
+                <option value="Prateek">Prateek</option>
+                <option value="Naman">Naman</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-cyan-300 font-bold mb-1">Date Given by Partner *</label>
+              <input type="date" id="tpDateInput" required class="w-full bg-slate-950 border border-cyan-500/50 rounded-lg p-2 text-white">
+            </div>
+            <div>
+              <label class="block text-cyan-300 font-bold mb-1">Time Slot Given *</label>
+              <select id="tpTimeInput" class="w-full bg-slate-950 border border-cyan-500/50 rounded-lg p-2 text-white">
+                <option value="10:00 AM">10:00 AM</option>
+                <option value="11:30 AM" selected>11:30 AM</option>
+                <option value="02:00 PM">02:00 PM</option>
+                <option value="03:30 PM">03:30 PM</option>
+                <option value="04:30 PM">04:30 PM</option>
+                <option value="06:00 PM">06:00 PM</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-emerald-300 font-bold mb-1">Availability Status</label>
+              <select id="tpAvailStatusInput" class="w-full bg-slate-950 border border-emerald-500/50 rounded-lg p-2 text-white">
+                <option value="Time Given - Confirmed">Time Given - Confirmed</option>
+                <option value="Evening Only (4 PM - 7 PM)">Evening Only (4 PM - 7 PM)</option>
+                <option value="Morning Only (10 AM - 1 PM)">Morning Only (10 AM - 1 PM)</option>
+                <option value="Rescheduled by Partner">Rescheduled by Partner</option>
+                <option value="Flexible Availability">Flexible Availability</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-emerald-300 font-bold mb-1">Partner Availability Window</label>
+              <input type="text" id="tpAvailWindowInput" placeholder="e.g. Free post 4 PM Tue-Sat" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white">
+            </div>
+          </div>
+          <div>
+            <label class="block text-amber-300 font-bold mb-1">All Discovery & Strategy Notes (Used in Claude/Gemini WhatsApp Flow)</label>
+            <input type="text" id="tpNotesInput" placeholder="e.g. Has 3 HNI buyers looking for 4 BHK Penthouse; share slab & floor plan" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white">
+          </div>
+          <div class="flex justify-end gap-2">
+            <button type="button" onclick="toggleStandaloneTargetForm()" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold">Cancel</button>
+            <button type="submit" class="px-5 py-2 rounded-lg bg-emerald-400 text-slate-950 font-extrabold">Save Target Partner & Sync</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Interactive 7-Day Availability Calendar Grid -->
+      <div class="glass-card rounded-2xl p-4 sm:p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base font-extrabold text-white">Interactive 7-Day Partner Availability Calendar</h3>
+            <p class="text-xs text-slate-400">Clearly see who has given a time and shift appointments based on partner availability.</p>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <button onclick="shiftTargetCalOffset(-7)" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 font-bold">Prev 7 Days</button>
+            <button onclick="shiftTargetCalOffset(0, true)" class="px-3 py-1.5 rounded-lg bg-cyan-400 text-slate-950 font-extrabold">Today</button>
+            <button onclick="shiftTargetCalOffset(7)" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 font-bold">Next 7 Days</button>
+          </div>
+        </div>
+        <div id="standaloneTargetCalendarGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3"></div>
+      </div>
+
+      <!-- Target Roster + Notes-Aware Claude/Gemini WhatsApp Extension Flow -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <div class="xl:col-span-7 space-y-3" id="standaloneTargetRosterList"></div>
+        <div class="xl:col-span-5" id="standaloneTargetWhatsAppFlowBox"></div>
+      </div>
+    </div>
   </main>
+
+  <!-- Hostinger Static HTML + Live Database + Universal Migration Studio Modal -->
+  <div id="hostingerDbModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="glass-card rounded-2xl w-full max-w-4xl p-4 sm:p-6 space-y-5 border-2 border-emerald-400/50 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-start justify-between border-b border-slate-800 pb-3">
+        <div>
+          <span class="px-2 py-0.5 rounded bg-emerald-400/20 text-emerald-300 text-[10px] font-extrabold uppercase">Hostinger Static HTML · Live Database · Universal CRM Migration</span>
+          <h3 class="text-lg font-extrabold text-white mt-1">Hostinger Static Website, Database Connector & Backup Studio</h3>
+          <p class="text-xs text-slate-400">Upload index.html + api.php to Hostinger public_html, connect your MySQL or Supabase Database, or export a 5-Sheet Excel/CSV kit to switch to any CP software.</p>
+        </div>
+        <button onclick="closeModal('hostingerDbModal')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white font-bold text-xs">✕</button>
+      </div>
+
+      <!-- 3 Section Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+        <div class="p-4 rounded-xl bg-slate-950 border border-emerald-500/40 space-y-2.5 flex flex-col justify-between">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase text-emerald-300">1. Hostinger public_html Files</span>
+            <h4 class="text-sm font-extrabold text-white mt-0.5">Download Static HTML + MySQL Bridge</h4>
+            <p class="text-slate-400 text-[11px] mt-1">Upload <code class="text-emerald-300">index.html</code> and <code class="text-cyan-300">api.php</code> into your Hostinger <code class="text-amber-300">public_html</code> folder.</p>
+          </div>
+          <div class="space-y-1.5">
+            <button onclick="downloadThisHTML()" class="w-full py-2 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold">Download index.html (Hostinger)</button>
+            <button onclick="downloadStandaloneApiPhp()" class="w-full py-2 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-extrabold">Download api.php (MySQL Bridge)</button>
+            <button onclick="downloadStandaloneSqlSchema()" class="w-full py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold">Download schema.sql</button>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950 border border-cyan-500/40 space-y-2.5 flex flex-col justify-between">
+          <div class="space-y-2">
+            <span class="text-[10px] font-extrabold uppercase text-cyan-300">2. Live Database Connection</span>
+            <h4 class="text-sm font-extrabold text-white">Connect Hostinger MySQL / Supabase</h4>
+            <select id="stDbProvider" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-white text-xs">
+              <option value="hostinger_mysql">Hostinger MySQL (via /api.php)</option>
+              <option value="supabase">Supabase PostgreSQL REST</option>
+            </select>
+            <input type="text" id="stDbUrl" value="/api.php" placeholder="/api.php or https://yourdomain.com/api.php" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-white font-mono text-xs">
+            <input type="password" id="stDbKey" placeholder="Optional API Key / Supabase Anon Key" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-white font-mono text-xs">
+            <div id="stDbStatusMsg" class="text-[11px] font-bold text-emerald-300"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button onclick="pushStandaloneToRemoteDB()" class="py-2 rounded-lg bg-emerald-400 text-slate-950 font-extrabold">Push to DB</button>
+            <button onclick="pullStandaloneFromRemoteDB()" class="py-2 rounded-lg bg-cyan-400 text-slate-950 font-extrabold">Pull from DB</button>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950 border border-amber-500/40 space-y-2.5 flex flex-col justify-between">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase text-amber-300">3. Switch / Migrate Software</span>
+            <h4 class="text-sm font-extrabold text-white mt-0.5">Universal Backup & CRM Export</h4>
+            <p class="text-slate-400 text-[11px] mt-1">Export a 5-Sheet Excel workbook, CRM CSVs, or full JSON backup to switch to Salesforce, Zoho, HubSpot, Sell.Do, or Anarock.</p>
+          </div>
+          <div class="space-y-1.5">
+            <button onclick="exportUniversal5SheetExcel()" class="w-full py-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold">Export 5-Sheet Excel (.xlsx)</button>
+            <button onclick="downloadStandaloneJsonBackup()" class="w-full py-2 rounded-lg bg-sky-400 hover:bg-sky-300 text-slate-950 font-extrabold">Download Full JSON Backup</button>
+            <button onclick="exportCPsCSV()" class="w-full py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold">Download Standard CRM CSV</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shift Target Appointment via Calendar Modal -->
+  <div id="shiftTargetModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-card rounded-2xl w-full max-w-lg p-5 space-y-4 border-2 border-cyan-400/50 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-[10px] font-extrabold uppercase text-cyan-300">Interactive Calendar Shifter</span>
+          <h3 id="shiftTargetModalTitle" class="text-base font-extrabold text-amber-300">Shift Partner Appointment</h3>
+        </div>
+        <button onclick="closeModal('shiftTargetModal')" class="px-2 py-1 rounded bg-slate-800 text-slate-300">✕</button>
+      </div>
+      <div id="shiftTargetCurrentAvailBox" class="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-slate-200"></div>
+      <form onsubmit="handleConfirmStandaloneShift(event)" class="space-y-3">
+        <input type="hidden" id="shiftTargetIdInput">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-cyan-300 font-bold mb-1">New Date *</label>
+            <input type="date" id="shiftTargetDateInput" required class="w-full bg-slate-950 border border-cyan-500/50 rounded-lg p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-amber-300 font-bold mb-1">New Time Slot *</label>
+            <select id="shiftTargetTimeInput" class="w-full bg-slate-950 border border-amber-500/50 rounded-lg p-2 text-white">
+              <option value="10:00 AM">10:00 AM</option>
+              <option value="11:30 AM">11:30 AM</option>
+              <option value="02:00 PM">02:00 PM</option>
+              <option value="03:30 PM">03:30 PM</option>
+              <option value="04:30 PM">04:30 PM</option>
+              <option value="06:00 PM">06:00 PM</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-emerald-300 font-bold mb-1">Updated Availability Window</label>
+          <input type="text" id="shiftTargetWindowInput" placeholder="e.g. Partner available post 4:30 PM" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white">
+        </div>
+        <div>
+          <label class="block text-slate-200 font-bold mb-1">Availability Change Reason / Note *</label>
+          <textarea id="shiftTargetReasonInput" rows="2" required placeholder="e.g. Partner requested shift to evening slot due to morning site visit..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('shiftTargetModal')" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-cyan-400 text-slate-950 font-extrabold">Confirm Shift & Update Flow</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- MODALS -->
 
@@ -1714,6 +1939,7 @@
     function renderCurrentView() {
       if (activeTab === "command") renderCommandCentre();
       else if (activeTab === "directory") renderDirectory();
+      else if (activeTab === "targets") renderStandaloneTargets();
       else if (activeTab === "pipeline") renderPipeline();
       else if (activeTab === "actions") renderActions();
       else if (activeTab === "scheduled") renderScheduledMeetings();
@@ -4023,9 +4249,414 @@
       downloadBlob(htmlContent, "index.html", "text/html;charset=utf-8");
     }
 
+    // =========================================================================
+    // TARGET PARTNERS, CALENDAR SHIFTER, CLAUDE/GEMINI WHATSAPP FLOW & HOSTINGER DB
+    // =========================================================================
+    let standaloneTargetCalOffset = 0;
+    let standaloneActiveFlowId = "";
+    let standaloneFlowStep = "confirm_time";
+    let standaloneExtMode = "claude";
+
+    function ensureStandaloneTargetPartners() {
+      const today = new Date().toISOString().split('T')[0];
+      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      const dayAfter = new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0];
+      if (!Array.isArray(DB.targetPartners) || DB.targetPartners.length === 0) {
+        DB.targetPartners = [
+          {
+            id: "tp-1",
+            companyName: "Silverline Realty Partners",
+            contactPerson: "Rohan Oberoi",
+            phone: "9876543210",
+            market: "Dwarka Expressway, Sector 106",
+            owner: "Prateek",
+            givenDate: tomorrow,
+            givenTimeSlot: "11:30 AM",
+            availabilityStatus: "Time Given - Confirmed",
+            availabilityWindow: "Prefers 11:00 AM – 1:30 PM on weekdays at Sector 106 office.",
+            outreachStage: "Time Given by Partner",
+            notes: "High-volume luxury broker on Dwarka Expressway. Has 3 HNI investors looking for ₹7–10 Cr residences.",
+            shiftHistory: []
+          },
+          {
+            id: "tp-2",
+            companyName: "Crestview Luxury Advisory LLP",
+            contactPerson: "Siddharth Malhotra",
+            phone: "9811445566",
+            market: "Golf Course Road, DLF Phase 5",
+            owner: "Jasjeet",
+            givenDate: dayAfter,
+            givenTimeSlot: "04:30 PM",
+            availabilityStatus: "Evening Only (4 PM - 7 PM)",
+            availabilityWindow: "Strictly available post 4:00 PM Tue–Sat at Golf Course Road office.",
+            outreachStage: "Appointment Shifted",
+            notes: "Boutique luxury firm handling family office mandates. Shifted to evening slot per partner availability.",
+            shiftHistory: [
+              {
+                fromDate: tomorrow,
+                fromTime: "11:00 AM",
+                toDate: dayAfter,
+                toTime: "04:30 PM",
+                availabilityReason: "Partner blocked with morning client registry; requested 4:30 PM slot."
+              }
+            ]
+          },
+          {
+            id: "tp-3",
+            companyName: "Vanguard Estates & Wealth",
+            contactPerson: "Meenakshi Bedi",
+            phone: "9818776655",
+            market: "Southern Peripheral Road (SPR)",
+            owner: "Pranay",
+            givenDate: today,
+            givenTimeSlot: "02:30 PM",
+            availabilityStatus: "Time Given - Confirmed",
+            availabilityWindow: "Available 2:00 PM – 5:00 PM today & Thursday.",
+            outreachStage: "Time Given by Partner",
+            notes: "Manages 25+ sales executives on SPR. Interested in exclusive mandate for 4 BHK & Penthouse units.",
+            shiftHistory: []
+          }
+        ];
+        saveDB();
+      }
+      if (!standaloneActiveFlowId && DB.targetPartners.length > 0) {
+        standaloneActiveFlowId = DB.targetPartners[0].id;
+      }
+    }
+
+    function toggleStandaloneTargetForm() {
+      const form = document.getElementById('standaloneTargetForm');
+      if (!form) return;
+      form.classList.toggle('hidden');
+      const dateInput = document.getElementById('tpDateInput');
+      if (dateInput && !dateInput.value) {
+        dateInput.value = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      }
+    }
+
+    function shiftTargetCalOffset(delta, reset) {
+      if (reset) standaloneTargetCalOffset = 0;
+      else standaloneTargetCalOffset += delta;
+      renderStandaloneTargets();
+    }
+
+    function handleSaveStandaloneTarget(e) {
+      e.preventDefault();
+      ensureStandaloneTargetPartners();
+      const companyName = document.getElementById('tpCompanyInput').value.trim();
+      const contactPerson = document.getElementById('tpContactInput').value.trim();
+      const phone = document.getElementById('tpPhoneInput').value.trim();
+      const owner = document.getElementById('tpOwnerInput').value;
+      const givenDate = document.getElementById('tpDateInput').value;
+      const givenTimeSlot = document.getElementById('tpTimeInput').value;
+      const availabilityStatus = document.getElementById('tpAvailStatusInput').value;
+      const availabilityWindow = document.getElementById('tpAvailWindowInput').value.trim() || `Available around ${givenTimeSlot}`;
+      const notes = document.getElementById('tpNotesInput').value.trim() || `Target partner scheduled for ${givenDate} at ${givenTimeSlot}`;
+
+      const newTp = {
+        id: "tp-" + Date.now(),
+        companyName,
+        contactPerson,
+        phone,
+        market: "Gurgaon Luxury Corridor",
+        owner,
+        givenDate,
+        givenTimeSlot,
+        availabilityStatus,
+        availabilityWindow,
+        outreachStage: "Time Given by Partner",
+        notes,
+        shiftHistory: []
+      };
+
+      DB.targetPartners.unshift(newTp);
+      // Sync to CP Directory & Action Queue
+      DB.partners.unshift({
+        id: "cp-" + newTp.id,
+        reraName: companyName,
+        name: contactPerson,
+        company: companyName,
+        phone,
+        owner,
+        priority: "A - High Potential",
+        status: "Meeting Scheduled",
+        lastTouch: new Date().toISOString().split('T')[0],
+        nextDate: givenDate,
+        nextAction: `[Target Partner Slot · ${givenTimeSlot} · ${availabilityStatus}] ${notes}`,
+        notes: `${notes} | Availability: ${availabilityWindow}`
+      });
+
+      standaloneActiveFlowId = newTp.id;
+      saveDB();
+      toggleStandaloneTargetForm();
+      renderStandaloneTargets();
+    }
+
+    function openShiftTargetModal(tpId) {
+      ensureStandaloneTargetPartners();
+      const tp = DB.targetPartners.find(item => item.id === tpId);
+      if (!tp) return;
+      document.getElementById('shiftTargetIdInput').value = tp.id;
+      document.getElementById('shiftTargetModalTitle').innerText = `Shift Appointment: ${tp.companyName} (${tp.contactPerson})`;
+      document.getElementById('shiftTargetCurrentAvailBox').innerHTML = `
+        <div class="font-bold text-emerald-300 uppercase text-[10px]">Known Partner Availability & Notes</div>
+        <div class="mt-0.5"><strong>Current Slot:</strong> ${tp.givenDate} at ${tp.givenTimeSlot} (${tp.availabilityStatus})</div>
+        <div><strong>Window:</strong> ${tp.availabilityWindow || 'Flexible'}</div>
+        <div><strong>Notes:</strong> ${tp.notes || ''}</div>
+      `;
+      document.getElementById('shiftTargetDateInput').value = tp.givenDate;
+      document.getElementById('shiftTargetTimeInput').value = tp.givenTimeSlot;
+      document.getElementById('shiftTargetWindowInput').value = tp.availabilityWindow || '';
+      document.getElementById('shiftTargetReasonInput').value = '';
+      openModal('shiftTargetModal');
+    }
+
+    function handleConfirmStandaloneShift(e) {
+      e.preventDefault();
+      const tpId = document.getElementById('shiftTargetIdInput').value;
+      const newDate = document.getElementById('shiftTargetDateInput').value;
+      const newTime = document.getElementById('shiftTargetTimeInput').value;
+      const newWindow = document.getElementById('shiftTargetWindowInput').value.trim();
+      const reason = document.getElementById('shiftTargetReasonInput').value.trim();
+
+      const tp = DB.targetPartners.find(item => item.id === tpId);
+      if (!tp) return;
+
+      tp.shiftHistory = tp.shiftHistory || [];
+      tp.shiftHistory.unshift({
+        fromDate: tp.givenDate,
+        fromTime: tp.givenTimeSlot,
+        toDate: newDate,
+        toTime: newTime,
+        availabilityReason: reason
+      });
+      tp.givenDate = newDate;
+      tp.givenTimeSlot = newTime;
+      tp.availabilityStatus = "Rescheduled by Partner";
+      if (newWindow) tp.availabilityWindow = newWindow;
+      tp.outreachStage = "Appointment Shifted";
+      tp.notes = `${tp.notes} | [Shifted to ${newDate} ${newTime}: ${reason}]`;
+
+      // Sync to CP Directory / Action Queue
+      DB.partners.forEach(p => {
+        if (p.id === "cp-" + tp.id || (p.name && p.name.toLowerCase() === tp.contactPerson.toLowerCase())) {
+          p.nextDate = newDate;
+          p.nextAction = `[Shifted Target Slot · ${newTime}] ${reason}`;
+          p.notes = tp.notes;
+        }
+      });
+
+      standaloneActiveFlowId = tp.id;
+      standaloneFlowStep = "shifted_time";
+      saveDB();
+      closeModal('shiftTargetModal');
+      renderStandaloneTargets();
+    }
+
+    function buildStandaloneWhatsAppMsg(tp, step) {
+      const firstName = (tp.contactPerson || "Partner").split(' ')[0];
+      const lastShift = (tp.shiftHistory && tp.shiftHistory[0]) ? tp.shiftHistory[0] : null;
+      if (step === "intro") {
+        return `Hi ${firstName}, greetings from *Pranay (${tp.owner || 'Pranay'} Team)*!\n\nTaking into account our notes on *${tp.companyName}* (${tp.notes}) and your preferred availability window (*${tp.availabilityWindow}*), does *${tp.givenDate} at ${tp.givenTimeSlot}* work for a 20-min luxury deck briefing?`;
+      }
+      if (step === "shifted_time") {
+        const shiftTxt = lastShift
+          ? `As per your updated availability (${lastShift.availabilityReason}), we have shifted our appointment from ${lastShift.fromDate} (${lastShift.fromTime}) to *${tp.givenDate} at ${tp.givenTimeSlot}*.`
+          : `As per your updated availability (*${tp.availabilityWindow}*), our meeting is shifted to *${tp.givenDate} at ${tp.givenTimeSlot}*.`;
+        return `Hi ${firstName}, ${shiftTxt}\n\nAll discussion notes are ready: _"${tp.notes}"_.\n\nPlease reply with a 👍 to confirm! — *${tp.owner || 'Pranay'}*`;
+      }
+      return `Hi ${firstName}, confirming our scheduled interaction with *${tp.companyName}* on *${tp.givenDate} at ${tp.givenTimeSlot}* (aligned with your availability: *${tp.availabilityWindow}*).\n\n*Agenda & Notes:* ${tp.notes}\n\nLook forward to connecting! — *${tp.owner || 'Pranay'}*`;
+    }
+
+    function buildStandaloneExtensionPlaybook(tp) {
+      const cleanPhone = (tp.phone || "").replace(/\D/g, "");
+      const e164 = cleanPhone.length === 10 ? "91" + cleanPhone : cleanPhone;
+      const msg = buildStandaloneWhatsAppMsg(tp, standaloneFlowStep);
+      const extTitle = standaloneExtMode === "claude" ? "CLAUDE BROWSER EXTENSION" : "GEMINI SIDEBAR EXTENSION";
+      return `[${extTitle} — AUTOMATED WHATSAPP FLOW]\nFirm: ${tp.companyName} | Contact: ${tp.contactPerson} (+${e164})\nGiven Slot: ${tp.givenDate} at ${tp.givenTimeSlot} (${tp.availabilityStatus})\nAvailability Window: ${tp.availabilityWindow}\nAll Notes Considered: ${tp.notes}\n\nSteps:\n1. Open https://web.whatsapp.com/send?phone=${e164}&text=${encodeURIComponent(msg)}\n2. Verify recent chat messages & partner availability notes.\n3. Auto-send message:\n"""\n${msg}\n"""`;
+    }
+
+    function launchStandaloneExtensionFlow(tpId) {
+      ensureStandaloneTargetPartners();
+      const tp = DB.targetPartners.find(item => item.id === tpId);
+      if (!tp) return;
+      const pb = buildStandaloneExtensionPlaybook(tp);
+      if (navigator.clipboard) navigator.clipboard.writeText(pb).catch(() => {});
+      const cleanPhone = (tp.phone || "").replace(/\D/g, "");
+      const e164 = cleanPhone.length === 10 ? "91" + cleanPhone : cleanPhone;
+      const msg = buildStandaloneWhatsAppMsg(tp, standaloneFlowStep);
+      window.open(`https://wa.me/${e164}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+    }
+
+    function renderStandaloneTargets() {
+      ensureStandaloneTargetPartners();
+      const calGrid = document.getElementById('standaloneTargetCalendarGrid');
+      const rosterEl = document.getElementById('standaloneTargetRosterList');
+      const flowBox = document.getElementById('standaloneTargetWhatsAppFlowBox');
+      if (!calGrid || !rosterEl || !flowBox) return;
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      let calHtml = "";
+      for (let i = standaloneTargetCalOffset; i < standaloneTargetCalOffset + 7; i++) {
+        const dt = new Date(Date.now() + i * 86400000);
+        const dStr = dt.toISOString().split('T')[0];
+        const dayLabel = dt.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' });
+        const dayItems = DB.targetPartners.filter(tp => tp.givenDate === dStr);
+        calHtml += `
+          <div class="rounded-xl border p-3 min-h-[190px] flex flex-col ${dStr === todayStr ? 'bg-cyan-950/30 border-cyan-400/60' : 'bg-slate-950/70 border-slate-800'}">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 text-xs font-extrabold text-white">
+              <span>${dayLabel}</span>
+              <span class="text-[10px] font-mono text-amber-300">${dayItems.length} slot${dayItems.length === 1 ? '' : 's'}</span>
+            </div>
+            <div class="space-y-2 flex-1">
+              ${dayItems.length === 0 ? `<div class="text-[11px] text-slate-600 text-center py-6">Open availability</div>` : dayItems.map(tp => `
+                <div class="p-2 rounded-lg bg-slate-900 border border-slate-700 space-y-1 text-xs">
+                  <div class="flex items-center justify-between">
+                    <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 font-mono text-[10px] font-extrabold">${tp.givenTimeSlot}</span>
+                    <span class="text-[10px] text-sky-300 font-bold">${tp.owner}</span>
+                  </div>
+                  <div class="font-extrabold text-amber-300 truncate">${tp.companyName}</div>
+                  <div class="text-[11px] text-white truncate">${tp.contactPerson}</div>
+                  <div class="text-[10px] text-emerald-300 truncate">${tp.availabilityStatus}</div>
+                  <div class="pt-1 flex gap-1">
+                    <button onclick="openShiftTargetModal('${tp.id}')" class="flex-1 py-1 rounded bg-cyan-400 text-slate-950 font-extrabold text-[10px]">Shift Time</button>
+                    <button onclick="standaloneActiveFlowId='${tp.id}';renderStandaloneTargets();" class="px-2 py-1 rounded bg-emerald-400 text-slate-950 font-extrabold text-[10px]">WA Flow</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      calGrid.innerHTML = calHtml;
+
+      rosterEl.innerHTML = DB.targetPartners.map(tp => `
+        <div class="glass-card rounded-2xl p-4 border ${standaloneActiveFlowId === tp.id ? 'border-amber-400' : 'border-slate-800'} space-y-2.5 text-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div class="text-base font-extrabold text-amber-300">${tp.companyName}</div>
+              <div class="text-slate-200 font-semibold">Contact: <strong class="text-white">${tp.contactPerson}</strong> · <span class="text-emerald-300 font-mono">${tp.phone}</span> · Owner: <span class="text-sky-300">${tp.owner}</span></div>
+            </div>
+            <div class="bg-slate-950 border border-cyan-500/40 rounded-xl px-3 py-1.5 text-right">
+              <div class="text-[10px] text-cyan-300 font-bold uppercase">Given Time Slot</div>
+              <div class="font-extrabold text-white">${tp.givenDate} · <span class="text-amber-300">${tp.givenTimeSlot}</span></div>
+              <div class="text-[10px] text-emerald-300">${tp.availabilityStatus}</div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div class="p-2 rounded-lg bg-emerald-950/30 border border-emerald-500/30 text-slate-200">
+              <strong class="text-emerald-300 block text-[10px] uppercase">Partner Availability Window</strong>
+              ${tp.availabilityWindow || 'Available at given slot'}
+            </div>
+            <div class="p-2 rounded-lg bg-amber-950/25 border border-amber-500/30 text-slate-200">
+              <strong class="text-amber-300 block text-[10px] uppercase">All Notes Considered</strong>
+              ${tp.notes || ''}
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 pt-1">
+            <button onclick="openShiftTargetModal('${tp.id}')" class="px-3 py-1.5 rounded-lg bg-cyan-400 text-slate-950 font-extrabold">Shift via Calendar</button>
+            <button onclick="standaloneActiveFlowId='${tp.id}';renderStandaloneTargets();" class="px-3 py-1.5 rounded-lg bg-emerald-400 text-slate-950 font-extrabold">Load in Claude/Gemini Flow</button>
+            <button onclick="launchStandaloneExtensionFlow('${tp.id}')" class="px-3 py-1.5 rounded-lg bg-amber-400 text-slate-950 font-extrabold">Auto-Send WhatsApp Now</button>
+          </div>
+        </div>
+      `).join('');
+
+      const activeTp = DB.targetPartners.find(tp => tp.id === standaloneActiveFlowId) || DB.targetPartners[0];
+      if (activeTp) {
+        const msg = buildStandaloneWhatsAppMsg(activeTp, standaloneFlowStep);
+        const pb = buildStandaloneExtensionPlaybook(activeTp);
+        flowBox.innerHTML = `
+          <div class="glass-card rounded-2xl p-4 sm:p-5 border-2 border-emerald-500/40 space-y-3 text-xs">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div>
+                <span class="text-[10px] font-extrabold uppercase text-emerald-300">Claude Extension & Gemini Sidebar Bridge</span>
+                <h4 class="text-sm font-extrabold text-white">Notes-Aware WhatsApp Flow: ${activeTp.companyName}</h4>
+              </div>
+              <div class="flex gap-1">
+                <button onclick="standaloneExtMode='claude';renderStandaloneTargets();" class="px-2 py-1 rounded ${standaloneExtMode==='claude'?'bg-amber-400 text-slate-950 font-extrabold':'bg-slate-800 text-slate-300'}">Claude Ext</button>
+                <button onclick="standaloneExtMode='gemini';renderStandaloneTargets();" class="px-2 py-1 rounded ${standaloneExtMode==='gemini'?'bg-cyan-400 text-slate-950 font-extrabold':'bg-slate-800 text-slate-300'}">Gemini Sidebar</button>
+              </div>
+            </div>
+            <div class="flex gap-1.5 flex-wrap">
+              <button onclick="standaloneFlowStep='intro';renderStandaloneTargets();" class="px-2.5 py-1 rounded-lg ${standaloneFlowStep==='intro'?'bg-emerald-400 text-slate-950 font-extrabold':'bg-slate-800 text-slate-300'}">1. First Pitch</button>
+              <button onclick="standaloneFlowStep='confirm_time';renderStandaloneTargets();" class="px-2.5 py-1 rounded-lg ${standaloneFlowStep==='confirm_time'?'bg-emerald-400 text-slate-950 font-extrabold':'bg-slate-800 text-slate-300'}">2. Confirm Given Time</button>
+              <button onclick="standaloneFlowStep='shifted_time';renderStandaloneTargets();" class="px-2.5 py-1 rounded-lg ${standaloneFlowStep==='shifted_time'?'bg-emerald-400 text-slate-950 font-extrabold':'bg-slate-800 text-slate-300'}">3. Shifted Availability Notice</button>
+            </div>
+            <div class="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/40 text-slate-100 whitespace-pre-wrap">${msg}</div>
+            <pre class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-300 whitespace-pre-wrap font-mono max-h-40 overflow-y-auto">${pb}</pre>
+            <button onclick="launchStandaloneExtensionFlow('${activeTp.id}')" class="w-full py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold">Copy Extension Flow & Launch WhatsApp Web</button>
+          </div>
+        `;
+      }
+    }
+
+    function downloadStandaloneApiPhp() {
+      const phpCode = `<?php\nheader("Access-Control-Allow-Origin: *");\nheader("Access-Control-Allow-Methods: GET, POST, OPTIONS");\nheader("Access-Control-Allow-Headers: Content-Type, X-API-Key");\nheader("Content-Type: application/json; charset=UTF-8");\nif ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }\n$DB_HOST = "localhost";\n$DB_NAME = "u123456789_cp_intel"; // Replace with Hostinger MySQL DB Name\n$DB_USER = "u123456789_admin";    // Replace with Hostinger MySQL User\n$DB_PASS = "YourPasswordHere";    // Replace with Hostinger MySQL Password\n$pdo = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME;charset=utf8mb4", $DB_USER, $DB_PASS, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);\n$pdo->exec("CREATE TABLE IF NOT EXISTS cp_intelligence_state (workspace_key VARCHAR(120) PRIMARY KEY, payload LONGTEXT NOT NULL, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)");\nif ($_SERVER['REQUEST_METHOD'] === 'GET') {\n  $stmt = $pdo->prepare("SELECT payload FROM cp_intelligence_state WHERE workspace_key = ?");\n  $stmt->execute([$_GET['workspace_key'] ?? 'pranay_cp_main']);\n  $row = $stmt->fetch(PDO::FETCH_ASSOC);\n  echo json_encode(["ok" => true, "payload" => $row ? json_decode($row['payload'], true) : null]);\n  exit;\n}\nif ($_SERVER['REQUEST_METHOD'] === 'POST') {\n  $body = json_decode(file_get_contents("php://input"), true);\n  $wsKey = $body['workspace_key'] ?? 'pranay_cp_main';\n  $payload = json_encode($body['payload'] ?? $body, JSON_UNESCAPED_UNICODE);\n  $stmt = $pdo->prepare("INSERT INTO cp_intelligence_state (workspace_key, payload) VALUES (?, ?) ON DUPLICATE KEY UPDATE payload = VALUES(payload)");\n  $stmt->execute([$wsKey, $payload]);\n  echo json_encode(["ok" => true, "message" => "Saved to Hostinger MySQL Database"]);\n  exit;\n}\n?>`;
+      downloadBlob(phpCode, "api.php", "application/x-httpd-php;charset=utf-8");
+    }
+
+    function downloadStandaloneSqlSchema() {
+      const sql = `CREATE TABLE IF NOT EXISTS cp_intelligence_state (\n  workspace_key VARCHAR(120) PRIMARY KEY,\n  payload LONGTEXT NOT NULL,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);`;
+      downloadBlob(sql, "hostinger_mysql_schema.sql", "application/sql;charset=utf-8");
+    }
+
+    function downloadStandaloneJsonBackup() {
+      downloadBlob(JSON.stringify(DB, null, 2), `CP_Full_Backup_${new Date().toISOString().split('T')[0]}.json`, "application/json;charset=utf-8");
+    }
+
+    function exportUniversal5SheetExcel() {
+      if (typeof XLSX === 'undefined') { exportCPsCSV(); return; }
+      ensureStandaloneTargetPartners();
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(DB.partners || []), "Channel_Partners");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(DB.targetPartners || []), "Target_Partners");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(DB.opportunities || []), "Deal_Pipeline");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(DB.activities || []), "Activity_Logs");
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      downloadBlob(wbout, `Pranay_CP_Universal_Migration_Kit_${new Date().toISOString().split('T')[0]}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
+
+    async function pushStandaloneToRemoteDB() {
+      const url = document.getElementById('stDbUrl').value.trim();
+      const key = document.getElementById('stDbKey').value.trim();
+      const msgEl = document.getElementById('stDbStatusMsg');
+      try {
+        msgEl.innerText = "Pushing data to database...";
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(key ? { 'X-API-Key': key } : {}) },
+          body: JSON.stringify({ workspace_key: 'pranay_cp_main', payload: DB })
+        });
+        msgEl.innerText = res.ok ? "✓ All records synced to Database!" : "HTTP Error " + res.status;
+      } catch (e) {
+        msgEl.innerText = "Connection Notice: Upload api.php to Hostinger first (" + e.message + ")";
+      }
+    }
+
+    async function pullStandaloneFromRemoteDB() {
+      const url = document.getElementById('stDbUrl').value.trim();
+      const msgEl = document.getElementById('stDbStatusMsg');
+      try {
+        msgEl.innerText = "Pulling data from database...";
+        const res = await fetch(url + "?workspace_key=pranay_cp_main");
+        const data = await res.json();
+        if (data && data.payload && Array.isArray(data.payload.partners)) {
+          DB = data.payload;
+          saveDB();
+          renderCurrentView();
+          msgEl.innerText = "✓ Workspace loaded from Database!";
+        } else {
+          msgEl.innerText = "Connected! Push initial data first.";
+        }
+      } catch (e) {
+        msgEl.innerText = "Connection Notice: Upload api.php to Hostinger first.";
+      }
+    }
+
     // Boot App
     document.addEventListener("DOMContentLoaded", () => {
       if (!document.getElementById('heroSummary')) return;
+      ensureStandaloneTargetPartners();
       syncOwnerDropdowns();
       renderCommandCentre();
       const pinInput = document.getElementById('userPinInput');
