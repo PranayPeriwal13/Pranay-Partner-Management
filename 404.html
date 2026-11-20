@@ -365,6 +365,19 @@
           <div id="queueOwnerPillsBar" class="flex items-center gap-1.5 flex-wrap"></div>
         </div>
 
+        <!-- Row 1.5: 1-Click Copy Owner Update (Overdue & Today Commitments) -->
+        <div class="pt-3 border-t border-slate-800/80 space-y-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-emerald-400/20 border border-emerald-400/30 text-emerald-300 text-[11px] font-extrabold">1-Click Copy Owner Commitments (Overdue + Today)</span>
+              <span class="text-[11px] text-slate-400 hidden md:inline">Click an owner below to copy their formatted Overdue & Today commitments to paste on WhatsApp/Slack</span>
+            </div>
+            <button type="button" onclick="openTeamDigestModal()" class="px-3 py-1 rounded-lg bg-violet-500 hover:bg-violet-400 text-white text-xs font-extrabold shadow-sm self-start sm:self-auto">Preview & Customize Team Digest</button>
+          </div>
+          <div id="queueCopyOwnerBar" class="flex items-center gap-1.5 flex-wrap"></div>
+          <div id="queueCopyToast" class="hidden px-3 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-xs font-extrabold"></div>
+        </div>
+
         <!-- Row 2: Search + Exact From/To Date Range Picker + Quick Date Horizon Presets -->
         <div class="pt-3 border-t border-slate-800/80 grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
           <div class="lg:col-span-3">
@@ -1032,6 +1045,32 @@
           <button type="submit" class="px-5 py-2 rounded-lg bg-cyan-400 text-slate-950 font-extrabold">Confirm Shift & Update Flow</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Team Digest Preview & Copy Modal -->
+  <div id="teamDigestModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+    <div class="glass-card rounded-2xl w-full max-w-2xl p-5 space-y-4 border-2 border-emerald-400/50 text-xs max-h-[92vh] overflow-y-auto">
+      <div class="flex items-start justify-between border-b border-slate-800 pb-3">
+        <div>
+          <span class="px-2 py-0.5 rounded bg-emerald-400/20 text-emerald-300 text-[10px] font-extrabold uppercase">Team Accountability Dispatch</span>
+          <h3 class="text-base sm:text-lg font-extrabold text-white mt-1">Copy Owner Commitments (Overdue & Today)</h3>
+          <p class="text-xs text-slate-400">Select an owner below and click Copy Text to paste their Overdue & Today's commitments directly into WhatsApp.</p>
+        </div>
+        <button onclick="closeModal('teamDigestModal')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white font-bold">✕</button>
+      </div>
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div id="teamDigestOwnerPills" class="flex items-center gap-1.5 flex-wrap"></div>
+        <label class="flex items-center gap-1.5 text-slate-300 font-semibold cursor-pointer">
+          <input type="checkbox" id="teamDigestIncludeUpcoming" onchange="renderTeamDigestModalContent()" class="rounded border-slate-700 bg-slate-950 text-emerald-400">
+          <span>Include Upcoming (Next 3d)</span>
+        </label>
+      </div>
+      <pre id="teamDigestPreviewText" class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 whitespace-pre-wrap font-sans leading-relaxed max-h-80 overflow-y-auto select-all"></pre>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeModal('teamDigestModal')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold">Close</button>
+        <button type="button" onclick="copyFromTeamDigestModal()" class="px-5 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold shadow-lg">Copy Commitments Text</button>
+      </div>
     </div>
   </div>
 
@@ -2560,6 +2599,46 @@
         ownerBarEl.innerHTML = allBtn + ownerBtns + unassignedBtn;
       }
 
+      // Render 1-Click Copy Owner Commitments (Overdue + Today) buttons
+      const copyBarEl = document.getElementById('queueCopyOwnerBar');
+      if (copyBarEl) {
+        const ownerUrgent = { ALL: { ov: 0, td: 0 } };
+        owners.forEach(o => { ownerUrgent[o] = { ov: 0, td: 0 }; });
+        DB.partners.forEach(p => {
+          if (p.status === "Converted" && !p.nextDate) return;
+          if (!p.nextDate) return;
+          const own = p.owner && p.owner !== "Unassigned" ? p.owner : "";
+          const isOv = p.nextDate < today;
+          const isTd = p.nextDate === today;
+          if (isOv) {
+            ownerUrgent.ALL.ov++;
+            if (own && ownerUrgent[own]) ownerUrgent[own].ov++;
+          } else if (isTd) {
+            ownerUrgent.ALL.td++;
+            if (own && ownerUrgent[own]) ownerUrgent[own].td++;
+          }
+        });
+
+        const copyOwnerBtns = owners.map(o => {
+          const st = ownerUrgent[o] || { ov: 0, td: 0 };
+          const hasUrgent = (st.ov + st.td) > 0;
+          return `
+            <button type="button" onclick="copyStandaloneOwnerDigest('${o.replace(/'/g, "\\'")}', false)" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all flex items-center gap-1.5 whitespace-nowrap ${hasUrgent ? 'bg-emerald-400 hover:bg-emerald-300 text-slate-950 shadow-sm' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'}">
+              <span>Copy ${o}</span>
+              <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-black/20">${st.ov} Overdue · ${st.td} Today</span>
+            </button>
+          `;
+        }).join('');
+
+        const copyAllBtn = `
+          <button type="button" onclick="copyStandaloneOwnerDigest('ALL', false)" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-sm whitespace-nowrap">
+            <span>Copy All Team Digest</span>
+            <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-black/15">${ownerUrgent.ALL.ov} Overdue · ${ownerUrgent.ALL.td} Today</span>
+          </button>
+        `;
+        copyBarEl.innerHTML = copyOwnerBtns + copyAllBtn;
+      }
+
       // Preset buttons
       const presetEl = document.getElementById('queuePresetButtons');
       const hasAnyFilter = Boolean(queueFilterOwner || queueFilterPreset || dateFrom || dateTo || q);
@@ -2706,6 +2785,7 @@
                           <button type="button" onclick="openCPWhatsApp('${p.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-xs">WhatsApp</button>
                           <button type="button" onclick="quickCompleteAction('${p.id}')" class="px-3 py-1.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs">Quick Complete</button>
                           <button type="button" onclick="openLogActivityForPartner('${p.id}')" class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs">Log Full</button>
+                          <button type="button" onclick="copySingleStandaloneCommitment('${p.id}')" class="px-2.5 py-1.5 rounded-xl bg-violet-500 hover:bg-violet-400 text-white font-bold text-xs">Copy Text</button>
                           <button type="button" onclick="openCPDetail('${p.id}')" class="px-2.5 py-1.5 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-bold text-xs">Profile</button>
                           <button type="button" onclick="deleteSingleCommitment('${p.id}')" class="px-2.5 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs">Delete</button>
                         </div>
@@ -2741,6 +2821,7 @@
             <span>Owner: <strong class="text-slate-200">${p.owner}</strong></span>
             <div class="flex items-center space-x-1.5">
               <button onclick="openCPWhatsApp('${p.id}')" class="px-2 py-0.5 rounded bg-emerald-400 text-slate-950 font-bold text-xs hover:bg-emerald-300">WA</button>
+              <button onclick="copySingleStandaloneCommitment('${p.id}')" class="px-2 py-0.5 rounded bg-violet-500 text-white font-bold text-xs hover:bg-violet-400">Copy</button>
               <button onclick="openLogActivityForPartner('${p.id}')" class="px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-bold text-xs hover:bg-amber-300">Log</button>
               <button onclick="openCPDetail('${p.id}')" class="px-2 py-0.5 rounded bg-sky-400 text-slate-950 font-bold text-xs hover:bg-sky-300">Profile</button>
               <button onclick="quickCompleteAction('${p.id}')" class="px-2 py-0.5 rounded bg-cyan-400 text-slate-950 font-bold text-xs hover:bg-cyan-300">Done</button>
@@ -4649,6 +4730,128 @@
       } catch (e) {
         msgEl.innerText = "Connection Notice: Upload api.php to Hostinger first.";
       }
+    }
+
+    let activeStandaloneDigestOwner = "ALL";
+
+    function showQueueCopyToast(msg) {
+      const toast = document.getElementById('queueCopyToast');
+      if (!toast) return;
+      toast.innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => { toast.classList.add('hidden'); }, 3500);
+    }
+
+    function buildStandaloneOwnerDigestText(targetOwner, includeUpcoming) {
+      const today = new Date().toISOString().split('T')[0];
+      const todayMs = new Date(today + "T00:00:00").getTime();
+      const diffDays = (dStr) => {
+        if (!dStr) return 9999;
+        return Math.round((new Date(dStr + "T00:00:00").getTime() - todayMs) / 86400000);
+      };
+
+      const formatItem = (cp, idx) => {
+        const firm = cp.reraName || cp.company || cp.name;
+        const phoneStr = cp.phone ? ` · 📞 +91 ${cp.phone}` : '';
+        const d = diffDays(cp.nextDate);
+        const statusStr = d < 0 ? `Due: ${cp.nextDate} (*${Math.abs(d)} Days Overdue*)` : d === 0 ? `Due: *Today (${cp.nextDate})*` : `Due: ${cp.nextDate} (In ${d}d)`;
+        return `${idx + 1}. *${firm}* (Contact: ${cp.name}${phoneStr})\n   ↳ *Commitment:* ${cp.nextAction || 'Follow up on client requirement'}\n   ↳ *Status:* ${statusStr}`;
+      };
+
+      const buildSingle = (ownerName) => {
+        const list = DB.partners.filter(p => {
+          if (p.status === "Converted" && !p.nextDate) return false;
+          if (!p.nextDate) return false;
+          const own = p.owner && p.owner !== "Unassigned" ? p.owner : "Unassigned";
+          return own === ownerName;
+        });
+        const ov = list.filter(p => p.nextDate < today).sort((a, b) => a.nextDate.localeCompare(b.nextDate));
+        const td = list.filter(p => p.nextDate === today);
+        const up = list.filter(p => diffDays(p.nextDate) > 0 && diffDays(p.nextDate) <= 3).sort((a, b) => a.nextDate.localeCompare(b.nextDate));
+
+        const lines = [
+          `📋 *CP ACTION QUEUE UPDATE — ${ownerName.toUpperCase()}*`,
+          `📅 *Date:* ${formatStandaloneDateWithWeekday(today)}`,
+          `⚡ *Summary:* ${ov.length} Overdue · ${td.length} Due Today${includeUpcoming ? ` · ${up.length} Upcoming (3d)` : ''}`,
+          ``
+        ];
+        if (ov.length > 0) {
+          lines.push(`🔴 *OVERDUE COMMITMENTS (${ov.length}) — Immediate Action Required:*`);
+          ov.forEach((cp, idx) => lines.push(formatItem(cp, idx)));
+          lines.push(``);
+        } else {
+          lines.push(`✅ *OVERDUE COMMITMENTS (0):* None — all past commitments cleared.`);
+          lines.push(``);
+        }
+        if (td.length > 0) {
+          lines.push(`🟡 *TODAY'S COMMITMENTS (${td.length}) — Priority Follow-Up Today:*`);
+          td.forEach((cp, idx) => lines.push(formatItem(cp, idx)));
+          lines.push(``);
+        } else {
+          lines.push(`🟡 *TODAY'S COMMITMENTS (0):* No follow-ups scheduled for today.`);
+          lines.push(``);
+        }
+        if (includeUpcoming && up.length > 0) {
+          lines.push(`🔵 *UPCOMING COMMITMENTS — NEXT 3 DAYS (${up.length}):*`);
+          up.forEach((cp, idx) => lines.push(formatItem(cp, idx)));
+          lines.push(``);
+        }
+        lines.push(`Please complete these follow-ups and log the outcome in *Pranay CP Intelligence*.`);
+        return lines.join('\n');
+      };
+
+      if (!targetOwner || targetOwner === "ALL") {
+        const owners = [...getActiveOwners(), "Unassigned"];
+        const blocks = owners.map(o => buildSingle(o));
+        return `📋 *MASTER TEAM COMMITMENTS UPDATE — ALL OWNERS*\n📅 *Date:* ${formatStandaloneDateWithWeekday(today)}\n========================================\n\n` + blocks.join('\n\n----------------------------------------\n\n');
+      }
+      return buildSingle(targetOwner);
+    }
+
+    function copyStandaloneOwnerDigest(ownerName, includeUpcoming) {
+      const txt = buildStandaloneOwnerDigestText(ownerName, includeUpcoming);
+      if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
+      showQueueCopyToast(`✓ Copied ${ownerName === 'ALL' ? 'All Team' : ownerName}'s Overdue & Today Commitments to clipboard!`);
+    }
+
+    function copySingleStandaloneCommitment(cpId) {
+      const cp = DB.partners.find(p => p.id === cpId);
+      if (!cp) return;
+      const today = new Date().toISOString().split('T')[0];
+      const todayMs = new Date(today + "T00:00:00").getTime();
+      const d = cp.nextDate ? Math.round((new Date(cp.nextDate + "T00:00:00").getTime() - todayMs) / 86400000) : 0;
+      const firm = cp.reraName || cp.company || cp.name;
+      const own = cp.owner || "Team";
+      const header = d < 0 ? `🔴 *OVERDUE COMMITMENT ALERT (${Math.abs(d)}d Overdue)*` : d === 0 ? `🟡 *TODAY'S COMMITMENT REMINDER*` : `🔵 *UPCOMING COMMITMENT (${cp.nextDate})*`;
+      const txt = `${header} — *For ${own}*\n• *RERA / Firm:* ${firm}\n• *Contact Person:* ${cp.name}${cp.phone ? ' (+91 ' + cp.phone + ')' : ''}\n• *Committed Action:* ${cp.nextAction || 'Follow up'}\n• *Due Date:* ${cp.nextDate || 'Not set'}\nPlease update the status once completed.`;
+      if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
+      showQueueCopyToast(`✓ Copied commitment for ${firm} (${own})!`);
+    }
+
+    function openTeamDigestModal(defaultOwner) {
+      activeStandaloneDigestOwner = defaultOwner || queueFilterOwner || "ALL";
+      openModal('teamDigestModal');
+      renderTeamDigestModalContent();
+    }
+
+    function renderTeamDigestModalContent() {
+      const pillsEl = document.getElementById('teamDigestOwnerPills');
+      const previewEl = document.getElementById('teamDigestPreviewText');
+      const incUp = document.getElementById('teamDigestIncludeUpcoming')?.checked || false;
+      const owners = ["ALL", ...getActiveOwners(), "Unassigned"];
+      if (pillsEl) {
+        pillsEl.innerHTML = owners.map(o => `
+          <button type="button" onclick="activeStandaloneDigestOwner='${o.replace(/'/g, "\\'")}';renderTeamDigestModalContent();" class="px-3 py-1.5 rounded-lg text-xs font-extrabold ${activeStandaloneDigestOwner === o ? 'bg-emerald-400 text-slate-950' : 'bg-slate-800 text-slate-300'}">${o === 'ALL' ? 'All Owners Master Digest' : o}</button>
+        `).join('');
+      }
+      if (previewEl) {
+        previewEl.innerText = buildStandaloneOwnerDigestText(activeStandaloneDigestOwner, incUp);
+      }
+    }
+
+    function copyFromTeamDigestModal() {
+      const incUp = document.getElementById('teamDigestIncludeUpcoming')?.checked || false;
+      copyStandaloneOwnerDigest(activeStandaloneDigestOwner, incUp);
     }
 
     // Boot App
